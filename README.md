@@ -15,7 +15,7 @@ The weather data is located [here][4].
 
 [Main Site][1]
 
-###NOAA
+### NOAA
 
 NYC geographical information can be found [here][5].
 
@@ -29,7 +29,7 @@ Once found, the forecast data can be pulled with `https://api.weather.gov/gridpo
 
 Historic weather data can be downloaded from [here][10]
 
-###NCEI
+### NCEI
 
 [NCEI API Information][9]
 
