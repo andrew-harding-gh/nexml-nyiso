@@ -2,18 +2,19 @@ import requests
 import glob
 from zipfile import ZipFile
 import pandas as pd
+import datetime
 
 url = 'http://mis.nyiso.com/public/csv/lfweather/{year}{month:02d}01lfweather_csv.zip'
 
 
 def download_files():
-    for year in range(2008, 2021):
+    for year in range(2008, datetime.datetime.now().year + 1):
         for month in range(1, 13):
             target = url.format(year=year, month=month)
             f = requests.get(target)
             if f.status_code == 200:
                 open('../raw_data/nyiso_weather_forecast/' + target.split('/')[-1], 'wb').write(f.content)
-                print('Downloaded from: {location}'.format(location=target))
+                print('Downloaded: {location}'.format(location=target))
 
 
 def create_csv():
