@@ -6,7 +6,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from plumbum import local
 
-start_date = date(2008, 9, 1)
+start_date = date(2001, 6, 1)
 end_date = date(2020, 3, 1)
 
 base = "http://mis.nyiso.com/public/csv"
