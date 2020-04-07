@@ -44,7 +44,7 @@ NOAA provides daily weather summaries, which have been visualized below:
 [9]: https://www.ncei.noaa.gov/support/access-data-service-api-user-documentation  
 [10]: https://www.ncdc.noaa.gov/cdo-web/search
 [11]: https://www.ncei.noaa.gov/metadata/geoportal/rest/metadata/item/gov.noaa.ncdc:C00861/html
-[max_temp]: https://github.com/the-great-shazbot/nexml-nyiso/tree/master/data/charts/max_temp_plot.png
-[max_temp_zoomed]: https://github.com/the-great-shazbot/nexml-nyiso/tree/master/data/charts/max_temp_zoomed_plot.png
-[min_temp]: https://github.com/the-great-shazbot/nexml-nyiso/tree/master/data/charts/min_temp_plot.png
-[precip]: https://github.com/the-great-shazbot/nexml-nyiso/tree/master/data/charts/precip_plot.png
+[max_temp]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/max_temp_plot.png
+[max_temp_zoomed]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/max_temp_zoomed_plot.png
+[min_temp]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/min_temp_plot.png
+[precip]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/precip_plot.png
