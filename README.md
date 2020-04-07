@@ -11,12 +11,12 @@ The weather data is located [here][4].
   
 NYC geographical information can be found [here][5].  
   
-You can get a grid location by hitting `https://api.weather.gov/points/{latitude},{longitude}` [[example]][6]  
+You can get a grid location by hitting `https://api.weather.gov/points/{latitude},{longitude}` [[example][6]].  
   
-Once found, the forecast data can be pulled with `https://api.weather.gov/gridpoints/TOP/{gridX},{gridY}/forecast`[[example]][7]  
+Once found, the forecast data can be pulled with `https://api.weather.gov/gridpoints/TOP/{gridX},{gridY}/forecast`[[example][7]].  
   
 [Forecast API Information][8]  
-Historic weather data can be downloaded from [here][10]  
+Historic weather data can be downloaded from [here][10]. Choose the GHCN-Daily download option [[details][11]].  
   
 ### NCEI  
   
@@ -34,3 +34,4 @@ Historic weather data can be downloaded from [here][10]
 [8]: https://www.weather.gov/documentation/services-web-api  
 [9]: https://www.ncei.noaa.gov/support/access-data-service-api-user-documentation  
 [10]: https://www.ncdc.noaa.gov/cdo-web/search
+[11]: https://www.ncei.noaa.gov/metadata/geoportal/rest/metadata/item/gov.noaa.ncdc:C00861/html
