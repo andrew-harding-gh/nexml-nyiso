@@ -6,7 +6,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from plumbum import local
 
-start_date = date(2008, 9, 1)
+start_date = date(2005, 2, 1)  # this is the initial month when NYC is its own region
 end_date = date(2020, 3, 1)
 
 base = "http://mis.nyiso.com/public/csv"
