@@ -4,8 +4,8 @@
 ### NYISO  
 Links to the data files:  
 [Main Site][1]  
-[Forecasts][2]  
-[Load Results][3]  
+[Forecasts][2]  (ISOLF == ISO Load Forecast)
+[Load Results][3]  (PAL == Actual Load)
 [Weather History][4]  
 
 ### NOAA  
