@@ -26,10 +26,16 @@ Historic weather data can be downloaded from [here][10]. Choose the GHCN-Daily d
 ###  
 
 ### Weather history
-NOAA provides daily weather summaries, which have been visualized below:  
+NOAA provides daily weather summaries, which have been visualized below.  
+Monthly Temperature:  
+![Monthly Temp][monthly_temp]  
+Maximum temperature:  
 ![Max Temp][max_temp]  
+Maximum temperature (zoomed in):  
 ![Max Temp Zoomed][max_temp_zoomed]  
+Minimum temperature:  
 ![Min Temp][min_temp]  
+Precipitation:  
 ![Precipitation][precip]  
 
   
@@ -48,3 +54,4 @@ NOAA provides daily weather summaries, which have been visualized below:
 [max_temp_zoomed]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/max_temp_zoomed_plot.png
 [min_temp]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/min_temp_plot.png
 [precip]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/precip_plot.png
+[monthly_temp]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/Monthly_temp_plot.png
