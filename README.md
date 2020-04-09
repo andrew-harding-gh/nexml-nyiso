@@ -54,4 +54,4 @@ Precipitation:
 [max_temp_zoomed]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/max_temp_zoomed_plot.png
 [min_temp]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/min_temp_plot.png
 [precip]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/precip_plot.png
-[monthly_temp]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/Monthly_temp_plot.png
+[monthly_temp]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/monthly_temp_plot.png
