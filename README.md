@@ -1,11 +1,23 @@
 # NYISO  
 
-# Data sources: 
+Nexient ML project aiming to predict daily electrical load of NYC given feature inputs like weather or economic factors.
+
+Currently lives in this personal repo until a more permanent location can be found. 
+
+# Data 
+
+For a more detailed look at each data source, see the [Data README](data/README.md)
+
+## Sources: 
+
 ### NYISO  
+The New York Independent System Operator (NYISO) is a goverment org that maintains the reliable operation of the state's energy grid.
+The reason this org is interesting to us is that they do a lot of system load forecasting to ensure optimal distribution. We are attempting to replicate this modeling.
+
 Links to the data files:  
 [Main Site][1]  
-[Forecasts (ISOLF)][2]  
-[Load Results (PAL)][3]  
+[Load Forecasts (ISOLF)][2]  
+[Actual Load Results (PAL)][3]  
 [Weather History][4]  
 
 ####Key terminology:  
