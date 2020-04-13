@@ -24,7 +24,7 @@ def wrangle_isolf_data(df):
     df = df[['Time Stamp', 'N.Y.C.', 'file_date']]
     df['Time Stamp'] = df['Time Stamp'].apply(lambda x: datetime.datetime.strptime(x, '%m/%d/%Y %H:%M').date())
     df = df.loc[df['Time Stamp'] == df['file_date']]
-    df['min'], df['max'], df['mean'] = df['N.Y.C.'].agg(['min', 'max', 'mean'])
+    df['isofl_min'], df['isolf_max'], df['isolf_mean'] = df['N.Y.C.'].agg(['min', 'max', 'mean'])
 
     df = df.tail(n=1)
     df['Name'] = 'N.Y.C.'
@@ -44,7 +44,7 @@ def wrangle_pal_data(df):
 
     df['Time Stamp'] = df['Time Stamp'].apply(lambda x: datetime.datetime.strptime(x, '%m/%d/%Y %H:%M:%S').date())
 
-    df['min'], df['max'], df['mean'] = df['Load'].agg(['min', 'max', 'mean'])
+    df['pal_min'], df['pal_max'], df['pal_mean'] = df['Load'].agg(['min', 'max', 'mean'])
     df.drop(['Time Zone', 'Load'], axis='columns', inplace=True)
     return df.tail(n=1).reset_index(drop=True)
 
