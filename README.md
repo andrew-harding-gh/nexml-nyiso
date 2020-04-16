@@ -8,6 +8,10 @@ Links to the data files:
 [Load Results (PAL)][3]  
 [Weather History][4]  
 
+####Key terminology:  
+PAL -- Actual load  
+ISOLF -- ISO load forecasts  
+
 ### NOAA  
   
 NYC geographical information can be found [here][5].  
@@ -27,7 +31,7 @@ Historic weather data can be downloaded from [here][10]. Choose the GHCN-Daily d
 
 ### Weather history
 NOAA provides daily weather summaries, which have been visualized below.  
-Monthly Temperature:  
+Maximum temperature by month:  
 ![Monthly Temp][monthly_temp]  
 Maximum temperature:  
 ![Max Temp][max_temp]  
