@@ -11,7 +11,7 @@ convert the time-series data to daily, finally storing it in `/data`.
 NYISO is a goverment org that maintains the reliable operation of the state's energy grid.
 The reason this org is interesting to us is that they do a lot of system load forecasting to ensure optimal distribution. We are attempting to replicate this modeling.
 
-#### Source Datasets
+#### Source Datasets:
 [Load Forecasts (ISOLF)][2]  
 [Actual Load Results (PAL)][3]  
 [Weather History][4]  
@@ -38,35 +38,29 @@ Weather -- Historical actual and forecasted weather utilized by ISO
 | text   | text |
 
 
-### NOAA  
+## NOAA  
   
 NYC geographical information can be found [here][5].  
   
 You can get a grid location by hitting `https://api.weather.gov/points/{latitude},{longitude}` [[example][6]].  
   
-Once found, the forecast data can be pulled with `https://api.weather.gov/gridpoints/TOP/{gridX},{gridY}/forecast`[[example][7]].  
+Once found, the forecast data can be pulled with `https://api.weather.gov/gridpoints/TOP/{gridX},{gridY}/forecast` [[example][7]].  
   
 [Forecast API Information][8]  
 Historic weather data can be downloaded from [here][10]. Choose the GHCN-Daily download option [[details][11]].  
+
+NOAA weather history: 
+
+| DATE     | STATION                                   | Latitude          | LONGITUDE         | ELEVATION                                         | PRCP                   | TMAX                     | TMIN                    |TAVG                      |
+|----------|-------------------------------------------|-------------------|-------------------|---------------------------------------------------|------------------------|--------------------------|-------------------------|--------------------------|
+| $Y-$m-$d | Station ID code (USW00094728 for NYC)     | Decimated degrees | Decimated degrees | Elevation above mean sea level (tenths of meters) | Precipitation (inches) | Highest hourly temp (°F) | Lowest hourly temp (°F) | Average hourly temp (°F) | 
+  
+Please see the [PDF][13] or the [readme][12] for additional information (there are many more columns in addition to those listed above).
   
 ### NCEI  
   
 [NCEI API Information][9]  
-  
-###  
 
-### Weather history
-NOAA provides daily weather summaries, which have been visualized below.  
-Maximum temperature by month:  
-![Monthly Temp][monthly_temp]  
-Maximum temperature:  
-![Max Temp][max_temp]  
-Maximum temperature (zoomed in):  
-![Max Temp Zoomed][max_temp_zoomed]  
-Minimum temperature:  
-![Min Temp][min_temp]  
-Precipitation:  
-![Precipitation][precip]  
 
   
 [1]: https://www.nyiso.com/power-grid-data  
@@ -80,8 +74,5 @@ Precipitation:
 [9]: https://www.ncei.noaa.gov/support/access-data-service-api-user-documentation  
 [10]: https://www.ncdc.noaa.gov/cdo-web/search
 [11]: https://www.ncei.noaa.gov/metadata/geoportal/rest/metadata/item/gov.noaa.ncdc:C00861/html
-[max_temp]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/max_temp_plot.png
-[max_temp_zoomed]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/max_temp_zoomed_plot.png
-[min_temp]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/min_temp_plot.png
-[precip]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/precip_plot.png
-[monthly_temp]: https://github.com/the-great-shazbot/nexml-nyiso/raw/master/data/charts/monthly_temp_plot.png
+[12]: https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt
+[13]: https://www1.ncdc.noaa.gov/pub/data/cdo/documentation/GHCND_documentation.pdf
