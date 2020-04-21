@@ -55,7 +55,7 @@ NOAA weather history:
 |----------|-------------------------------------------|-------------------|-------------------|---------------------------------------------------|------------------------|--------------------------|-------------------------|--------------------------|
 | $Y-$m-$d | Station ID code (USW00094728 for NYC)     | Decimated degrees | Decimated degrees | Elevation above mean sea level (tenths of meters) | Precipitation (inches) | Highest hourly temp (°F) | Lowest hourly temp (°F) | Average hourly temp (°F) | 
   
-Please see the [PDF][13] or the [readme][12] for additional information.
+Please see the [PDF][13] or the [readme][12] for additional information (there are many more columns in addition to those listed above).
   
 ### NCEI  
   
