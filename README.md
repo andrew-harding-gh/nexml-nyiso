@@ -8,7 +8,7 @@ Links to the data files:
 [Load Results (PAL)][3]  
 [Weather History][4]  
 
-####Key terminology:  
+#### Key terminology:  
 PAL -- Actual load  
 ISOLF -- ISO load forecasts  
 
