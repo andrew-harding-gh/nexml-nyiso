@@ -1,3 +1,5 @@
 # Notebook Documentation
 
-Click these links to learn more about individual data sources and models used:
+`central_park_weather.ipynb` - analysis of the NOAA weather data.  
+
+`elec_load.ipynb` - analysis of ISO load data.
