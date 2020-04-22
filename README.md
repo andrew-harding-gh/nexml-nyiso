@@ -10,7 +10,12 @@ This project uses electrical load and weather historicals and forecasts to be ab
 
 For a more detailed look at each data source, see the [Data README](data/README.md)
 
-## Key terminology:  
+# Key terminology  
 PAL -> Actual load  
 ISOLF -> ISO load forecasts  
 
+# Setup
+
+We recommend setting up a virtual environment or similar to run the scripts and notebooks contained in this project. For more information, please read [here](https://docs.python.org/3/library/venv.html).  
+  
+To train the models you will want to set up [plaidML](https://github.com/plaidml/plaidml) as your backend. Alternatively, feel free to modify the notebooks to use anything else compatible with Keras (TensorFlow, Theano, CNTK).  
