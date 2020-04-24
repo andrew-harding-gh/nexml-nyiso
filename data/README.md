@@ -61,6 +61,11 @@ Please see the [PDF][13] or the [readme][12] for additional information (there a
   
 [NCEI API Information][9]  
 
+### Weatherbit.io
+Free source for a weather forecast API.
+
+16 day forecast endpoint documented [here][14]
+
 
   
 [1]: https://www.nyiso.com/power-grid-data  
@@ -76,3 +81,4 @@ Please see the [PDF][13] or the [readme][12] for additional information (there a
 [11]: https://www.ncei.noaa.gov/metadata/geoportal/rest/metadata/item/gov.noaa.ncdc:C00861/html
 [12]: https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt
 [13]: https://www1.ncdc.noaa.gov/pub/data/cdo/documentation/GHCND_documentation.pdf
+[14]: https://www.weatherbit.io/api/weather-forecast-16-day
