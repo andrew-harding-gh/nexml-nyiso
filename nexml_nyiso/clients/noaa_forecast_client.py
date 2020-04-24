@@ -1,9 +1,13 @@
 import json
 import requests
+from collections import namedtuple
+
+next_day_forecast = namedtuple('next_day_forecast', ['temp', 'wspeed', 'wdir'])
 
 
 class NoaaClient:
     base_url = "https://api.weather.gov/"
+    # central park details hardcoded
     cp_office = "OKX"
     cp_lat = 40.771133
     cp_long = -73.974187
@@ -18,7 +22,7 @@ class NoaaClient:
 
     def get_forecast(self, grid=(gridx, gridy)):
         """
-        grid: contains x and y coords for station grid; tuple
+        grid: tuple -> contains x and y coords for station grid
 
         Returns
         """
