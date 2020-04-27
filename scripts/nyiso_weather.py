@@ -1,5 +1,4 @@
 import requests
-import glob
 import pandas as pd
 import datetime
 from zipfile import ZipFile
