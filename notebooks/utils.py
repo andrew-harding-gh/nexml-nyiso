@@ -79,21 +79,25 @@ def load_data(target='pal_mean', test_split=0.1):
     df = actual_load.join(weather, how='inner')
     if df.isnull().values.any():
         print('Null values detected in dataset!')
-    df = df.drop(columns=unused_targets)
+    df.drop(columns=unused_targets, inplace=True)
+    df.rename(columns={target: 'target'}, inplace=True)
     df = df.sample(random_state=RANDOM_STATE, frac=1)
     test, train = np.split(df, [int(test_split * len(df))])
     return train, test
 
 
-def preprocess(df, encoder='one_hot'):
+def preprocess(df, columns_to_normalize, mean, std):
     """
-    Modifies dataframe in place.
+    Modifies dataframe in place. Mean and std should be series.
     """
-    if encoder == 'one_hot':
-        one_hot(df, 'day_of_year', DAYS_OF_YEAR)
-        one_hot(df, 'weekday', WEEKDAYS)
-        one_hot(df, 'week', WEEKS)
-        one_hot(df, 'month', MONTHS)
+    one_hot(df, 'day_of_year', DAYS_OF_YEAR)
+    one_hot(df, 'weekday', WEEKDAYS)
+    one_hot(df, 'week', WEEKS)
+    one_hot(df, 'month', MONTHS)
+
+    for col in columns_to_normalize:
+        df[col] -= mean[col]
+        df[col] /= std[col]
 
 
 def one_hot(df, column, categories):
