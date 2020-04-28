@@ -1,6 +1,6 @@
 import time
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 import pandas as pd
@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from notebooks.utils import START_DATE, END_DATE
+from nexml_nyiso.notebooks.utils import START_DATE, END_DATE
 
 CHROMEDRIVER_PATH = "../chromedriver"
 chrome_options = Options()
@@ -119,5 +119,5 @@ class CombineWeatherHistorical:
 
 
 if __name__ == '__main__':
-    # WeatherScraper().main()
+    WeatherScraper().main()
     CombineWeatherHistorical().main()
