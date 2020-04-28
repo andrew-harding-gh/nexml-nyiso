@@ -1,4 +1,5 @@
 import time
+import re
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -42,51 +43,42 @@ class WeatherScraper:
         url = self.base_url + f'history/monthly/{self.station}/date/{year}-{month}'
         self.webdriver.get(url)
 
-        # TODO: proper wait for load
         time.sleep(5)
-
-        table = self.webdriver.find_element_by_xpath(
-            "/html/body/app-root/app-history/one-column-layout/wu-header/sidenav/mat-sidenav-container/mat-sidenav-content/div/section/div[2]/div[1]/div[5]/div[1]/div/lib-city-history-observation/div/div[2]/table")
+        wait = WebDriverWait(self.webdriver, 30)
+        table = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH,
+                 "/html/body/app-root/app-history/one-column-layout/wu-header/sidenav/mat-sidenav-container/mat-sidenav-content/div/section/div[2]/div[1]/div[5]/div[1]/div/lib-city-history-observation/div/div[2]/table")
+            )
+        )
 
         self.parse_observation_table(table, year, month)
-
-        # text = self.parse_observation_table(table)
-        # self.dump_to_file(year, month, text)
 
     def parse_observation_table(self, table, year, month):
         """
         HEADERS = ['Date', 'Temperature (°F)', 'Dew Point (°F)', 'Humidity (%)', 'Wind Speed (mph)', 'Pressure (Hg)', 'Precipitation (in)']
-        Parameters
-        ----------
-        table
-
-        Returns
-        -------
-
         """
         HEADERS = ['date', 't', 'dwpt', 'rh', 'ws', 'pr', 'prcp']
-        # # get headers
-        # thead = table.find_element_by_tag_name('thead')
-        # headers = [td.text for td in thead.find_elements_by_tag_name('td')]
         body = table.find_element_by_tag_name('tbody')
         raw_dfs = pd.read_html(body.get_attribute('innerHTML'))
+        processed_dfs = list()
 
         for i, df in enumerate(raw_dfs):
             if i == 0:
-                df = self.process_date_df(df, year, month, HEADERS[i])
+                processed_dfs.append(self.process_date_df(df, year, month, HEADERS[i]))
             else:
                 # pop first row to col header
-                df.columns = f"{HEADERS[i]}_{df.iloc[0]}"
-                df = df[1:]
+                df.columns = [f"{HEADERS[i]}_{x.lower()}" for x in df.iloc[0]]
+                processed_dfs.append(df[1:])
 
-        out = pd.concat(raw_dfs)
-        print('debug')
+        out = pd.concat(processed_dfs, axis=1, sort=False)
+        self.dump_to_file(year, month, out)
 
     def process_date_df(self, df, year, month, header):
         """ build the date col """
         df.columns = [header]
         df = df[1:]
-        df.loc[header] = df[header].apply(lambda x: datetime(year, month, int(x)).date())
+        df[header] = df[header].apply(lambda x: datetime(year, month, int(x)).date())
         return df
 
     def dump_to_file(self, year, month, df):
@@ -95,11 +87,37 @@ class WeatherScraper:
         if not new.exists():
             new.mkdir()
         fn = local.path(new / f'{self.station.lower()}_weather_{str(year)}_{str(month)}.csv')
-        fn.touch()
 
-        df.to_csv(fn)
+        df.to_csv(str(fn), index=False)
         print('data written for date.')
 
 
+class CombineWeatherHistorical:
+
+    def __init__(self, zipped=False):
+        self.zipped = zipped
+
+    def main(self):
+        pattern = re.compile(r".*weather.*\.csv")
+
+        dir_ = local.path(__file__).dirname
+        dl_dir = dir_ / 'downloads'
+
+        df = pd.DataFrame()
+
+        for csv in dl_dir.walk(filter=lambda x: re.match(pattern, x)):
+            in_df = pd.read_csv(str(csv))
+            df = pd.concat([df, in_df])
+
+        df.sort_values(by=['date'], inplace=True)
+
+        fn = local.path(__file__).dirname.up() / 'data' / 'klga_weather_historicals'
+        if self.zipped:
+            df.to_csv(str(fn.with_suffix('.gz')), index=False, compression='gzip')
+        else:
+            df.to_csv(str(fn.with_suffix('.csv')), index=False)
+
+
 if __name__ == '__main__':
-    WeatherScraper().main()
+    # WeatherScraper().main()
+    CombineWeatherHistorical().main()

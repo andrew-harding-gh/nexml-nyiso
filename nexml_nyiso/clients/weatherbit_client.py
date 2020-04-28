@@ -2,7 +2,7 @@ import json
 import requests
 from datetime import datetime, timedelta
 
-from nexml_nyiso.utility import weather_station, wb_forecast, wb_historical
+from nexml_nyiso.utility import weather_station, wb_forecast
 
 
 class WbClient:
