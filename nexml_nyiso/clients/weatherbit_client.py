@@ -108,7 +108,6 @@ class WbClient:
                 for fc_day in data
             ]
 
-    # TODO: remove units from general method
     def get(self, url, units="I"):
         """
         url: str -> url for request
