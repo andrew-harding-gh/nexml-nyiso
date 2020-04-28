@@ -4,9 +4,9 @@ import datetime
 
 START_DATE = datetime.datetime(2005, 2, 1)
 END_DATE = datetime.datetime(2020, 3, 30)
-WEATHER_DATA_PATH = '../data/noaa_central_park_weather.csv'
-PAL_DATA_PATH = '../data/nyiso_pal_master.csv'
-ISOLF_DATA_PATH = '../data/nyiso_isolf_master.csv'
+WEATHER_DATA_PATH = '../../data/noaa_central_park_weather.csv'
+PAL_DATA_PATH = '../../data/nyiso_pal_master.csv'
+ISOLF_DATA_PATH = '../../data/nyiso_isolf_master.csv'
 RANDOM_STATE = 123
 DAYS_OF_YEAR = list(range(1, 367))
 WEEKDAYS = list(range(7))
