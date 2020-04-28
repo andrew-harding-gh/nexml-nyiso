@@ -61,13 +61,13 @@ Please see the [PDF][13] or the [readme][12] for additional information (there a
   
 [NCEI API Information][9]  
 
-### Weatherbit.io
+## Weatherbit.io
 Free source for a weather forecast API.
 
 16 day forecast endpoint documented [here][14]
 
 
-### Weather Underground
+## Weather Underground
 Source of weather historicals. See an example [here][15]
 
 Dataset has several features, some with with min/max/avg columns: 
