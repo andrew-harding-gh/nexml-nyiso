@@ -14,6 +14,7 @@ defusedxml==0.6.0
 entrypoints==0.3
 enum34==1.1.10
 h5py==2.10.0
+html5lib==1.0.1
 idna==2.9
 importlib-metadata==1.6.0
 ipykernel==5.2.0
@@ -35,6 +36,7 @@ Keras==2.2.4
 Keras-Applications==1.0.8
 Keras-Preprocessing==1.1.0
 kiwisolver==1.2.0
+lxml==4.5.0
 MarkupSafe==1.1.1
 matplotlib==3.2.1
 mistune==0.8.4

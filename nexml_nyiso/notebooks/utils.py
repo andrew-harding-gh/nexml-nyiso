@@ -4,18 +4,31 @@ import datetime
 
 START_DATE = datetime.datetime(2005, 2, 1)
 END_DATE = datetime.datetime(2020, 3, 30)
+WU_WEATHER_PATH = '../../data/klga_weather_historicals.csv'
 WEATHER_DATA_PATH = '../../data/noaa_central_park_weather.csv'
 PAL_DATA_PATH = '../../data/nyiso_pal_master.csv'
 ISOLF_DATA_PATH = '../../data/nyiso_isolf_master.csv'
 RANDOM_STATE = 123
-DAYS_OF_YEAR = list(range(1, 367))
+DAYS_OF_YEAR = list(range(1, 366))
 WEEKDAYS = list(range(7))
-WEEKS = list(range(1, 54))
+WEEKS = list(range(1, 53))
 MONTHS = list(range(1, 13))
 
 
 def date_filter(df):
     return df.loc[(df.index >= START_DATE) & (df.index <= END_DATE)]
+
+
+def wu_weather():
+    df = pd.read_csv(WU_WEATHER_PATH)
+    df['date'] = pd.to_datetime(df['date'])
+    df['day_of_year'] = df.date.dt.dayofyear
+    df['weekday'] = df.date.dt.weekday
+    df['week'] = df.date.dt.week
+    df['month'] = df.date.dt.month
+    df['year'] = df.date.dt.year
+    df.set_index('date', inplace=True)
+    return date_filter(df)
 
 
 def noaa_weather():
@@ -86,10 +99,11 @@ def load_data(target='pal_mean', test_split=0.1):
     return train, test
 
 
-def preprocess(df, columns_to_normalize, mean, std):
-    """
-    Modifies dataframe in place. Mean and std should be series.
-    """
+def preprocess(df, columns_to_normalize, mean, std, inplace=True):
+
+    if not inplace:
+        df = df.copy(deep=True)
+        
     one_hot(df, 'day_of_year', DAYS_OF_YEAR)
     one_hot(df, 'weekday', WEEKDAYS)
     one_hot(df, 'week', WEEKS)
@@ -98,6 +112,8 @@ def preprocess(df, columns_to_normalize, mean, std):
     for col in columns_to_normalize:
         df[col] -= mean[col]
         df[col] /= std[col]
+        
+    return None if inplace else df
 
 
 def one_hot(df, column, categories):
