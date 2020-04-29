@@ -101,7 +101,7 @@ def load_data(target='pal_mean', test_split=0.1):
 
 def preprocess(df, columns_to_normalize, mean, std, inplace=True):
 
-    if inplace:
+    if not inplace:
         df = df.copy(deep=True)
         
     one_hot(df, 'day_of_year', DAYS_OF_YEAR)
@@ -113,7 +113,7 @@ def preprocess(df, columns_to_normalize, mean, std, inplace=True):
         df[col] -= mean[col]
         df[col] /= std[col]
         
-    return df if inplace else None
+    return None if inplace else df
 
 
 def one_hot(df, column, categories):
