@@ -28,11 +28,7 @@ def date_filter(df):
 def wu_weather():
     df = pd.read_csv(WU_WEATHER_PATH)
     df['date'] = pd.to_datetime(df['date'])
-    df['day_of_year'] = df.date.dt.dayofyear
-    df['weekday'] = df.date.dt.weekday
-    df['week'] = df.date.dt.week
-    df['month'] = df.date.dt.month
-    df['year'] = df.date.dt.year
+    expand_dt_col(df, 'date')
     df.set_index('date', inplace=True)
     return date_filter(df)
 
@@ -40,19 +36,15 @@ def wu_weather():
 def noaa_weather():
     df = pd.read_csv(WEATHER_DATA_PATH, dtype='object')
     df['DATE'] = pd.to_datetime(df['DATE'])
-    df['day_of_year'] = df.DATE.dt.dayofyear
-    df['weekday'] = df.DATE.dt.weekday
-    df['week'] = df.DATE.dt.week
-    df['month'] = df.DATE.dt.month
-    df['year'] = df.DATE.dt.year
+    expand_dt_col(df, 'DATE')
     df['TMAX'] = df['TMAX'].astype('float')
     df['TMIN'] = df['TMIN'].astype('float')
     df['PRCP'] = df['PRCP'].astype('float')
     df = df[[
         'day_of_year',
-        'weekday', 
-        'week', 
-        'month', 
+        'weekday',
+        'week',
+        'month',
         'PRCP',
         'TMAX',
         'TMIN',
@@ -92,19 +84,20 @@ def isolf(forecast_type='isolf_mean'):
     return date_filter(df)
 
 
-def load_data(target='pal_mean', test_split=0.1):
+def load_data(target='pal_mean', random=True, test_split=0.1):
     """
     Returns: train, test dataframe with specified target column
     """
     unused_targets = list(filter(lambda x: x != target, ['pal_min', 'pal_max', 'pal_mean']))
-    weather = noaa_weather()
+    weather = wu_weather()
     actual_load = pal()
     df = actual_load.join(weather, how='inner')
     if df.isnull().values.any():
         print('Null values detected in dataset!')
     df.drop(columns=unused_targets, inplace=True)
     df.rename(columns={target: 'target'}, inplace=True)
-    df = df.sample(random_state=RANDOM_STATE, frac=1)
+    if random:
+        df = df.sample(random_state=RANDOM_STATE, frac=1)      
     test, train = np.split(df, [int(test_split * len(df))])
     return train, test
 
@@ -142,3 +135,32 @@ def one_hot(df, column, categories):
     col_names = [column + '_' + str(x) for x in categories]
     df[col_names] = df[column].apply(lambda x: pd.Series([1 if x == y else 0 for y in categories]))
     df.drop(columns=[column], inplace=True)
+
+
+def expand_dt_col(df, date_col):
+    """ mutates df in place """
+    df['day_of_year'] = df[date_col].dt.dayofyear
+    df['weekday'] = df[date_col].dt.weekday
+    df['week'] = df[date_col].dt.week
+    df['month'] = df[date_col].dt.month
+    df['year'] = df[date_col].dt.year
+    
+
+# convert an array of values into a dataset matrix
+def create_dataset(dataset, look_back=1):
+    dataX, dataY = [], []
+    for i in range(len(dataset)-look_back-1):
+        dataX.append(dataset.iloc[i:(i+look_back), 0])
+        dataY.append(dataset.iloc[i + look_back, 0])
+    return np.array(dataX), np.array(dataY)
+
+def time_series_split(df, look_back=60, target_idx=0):
+    x = df[:-look_back, :]
+    y = df[look_back:, target_idx]
+    return x, y
+
+def reshape_(df, steps=1):
+    return np.reshape(
+        df,
+        (df.shape[0], steps, df.shape[1])    
+    )
