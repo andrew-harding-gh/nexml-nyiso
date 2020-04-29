@@ -12,6 +12,12 @@ DAYS_OF_YEAR = list(range(1, 367))
 WEEKDAYS = list(range(7))
 WEEKS = list(range(1, 54))
 MONTHS = list(range(1, 13))
+COLUMNS_TO_NORMALIZE = [
+    'target',
+    'PRCP',
+    'TMAX',
+    'TMIN',
+]
 
 
 def date_filter(df):
@@ -86,16 +92,23 @@ def load_data(target='pal_mean', test_split=0.1):
     return train, test
 
 
-def preprocess(df, columns_to_normalize, mean, std):
+def preprocess(df, mean, std):
     """
     Modifies dataframe in place. Mean and std should be series.
+
+    Parameters
+    ----------
+    df: DataFrame -> DataFrame to be processed.
+    mean: Series -> Series containing mean of columns.
+    std: Series -> Series containing std of columns.
     """
+
     one_hot(df, 'day_of_year', DAYS_OF_YEAR)
     one_hot(df, 'weekday', WEEKDAYS)
     one_hot(df, 'week', WEEKS)
     one_hot(df, 'month', MONTHS)
 
-    for col in columns_to_normalize:
+    for col in COLUMNS_TO_NORMALIZE:
         df[col] -= mean[col]
         df[col] /= std[col]
 
