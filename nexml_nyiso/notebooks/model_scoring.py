@@ -65,6 +65,6 @@ def eval(model, mean, std):
         'PRCP',
         'TMIN',
         'TMAX',
-    ]].round(2)
+    ]].round(1)
 
     return results, pred_plot
