@@ -1,10 +1,7 @@
 import utils
 import pandas as pd
-from bokeh.plotting import figure, output_file, show
-from bokeh.models import ColumnDataSource, DatetimeTickFormatter
-from bokeh.models.tools import HoverTool
-from bokeh.io.export import get_screenshot_as_png
-from bokeh.io import output_notebook
+from bokeh.plotting import figure
+from bokeh.models import DatetimeTickFormatter
 
 
 def de_process(df, mean, std):
@@ -36,7 +33,9 @@ def eval(model, mean, std):
     results['prediction'] *= std.target
     results['prediction'] += mean.target
     results['date'] = results.index
+    results = results.astype({'prediction': 'float'})
 
+    results.sort_index(inplace=True)
     pred_plot = figure(plot_width=1200, plot_height=600, x_axis_label='Date', y_axis_label='Usage')
     pred_plot.circle(x='date', y='target', source=results, size=10, fill_alpha=.5, legend_label='Actual')
     pred_plot.triangle(x='date', y='prediction', source=results, size=10, fill_alpha=.5, legend_label='Prediction', color='green')
@@ -49,8 +48,13 @@ def eval(model, mean, std):
     results['isolf_error'] = results['target'] - results['isolf_mean']
     total_prediction_error = results['prediction_error'].abs().sum().round()
     total_isolf_error = results['isolf_error'].abs().sum().round()
+    closest_count = len(results[results['prediction_error'].abs() < results['isolf_error'].abs()])
     print('Total prediction error: {e}'.format(e=total_prediction_error))
     print('Total ISOLF prediction error: {e}'.format(e=total_isolf_error))
+    print('Percentage of time the model outperformed the NYISO model: {percent}'.format(percent=round(closest_count / len(results) * 100, 2)))
+    results.sort_values(by=['prediction_error'], inplace=True)
+
+    de_process(results, mean, std)
     results = results[[
         'prediction_error',
         'isolf_error',
@@ -61,6 +65,6 @@ def eval(model, mean, std):
         'PRCP',
         'TMIN',
         'TMAX',
-    ]]
+    ]].round(2)
 
     return results, pred_plot
