@@ -1,3 +1,5 @@
 .idea/
+.ipynb_checkpoints
+./__pycache__/
 venv/
 /nexml_nyiso/bin/.ipynb_checkpoints/

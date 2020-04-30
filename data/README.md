@@ -61,11 +61,26 @@ Please see the [PDF][13] or the [readme][12] for additional information (there a
   
 [NCEI API Information][9]  
 
-### Weatherbit.io
+## Weatherbit.io
 Free source for a weather forecast API.
 
 16 day forecast endpoint documented [here][14]
 
+
+## Weather Underground
+Source of weather historicals. See an example [here][15]
+
+Dataset has several features, some with with min/max/avg columns: 
+
+| feature           | abbreviation | dtype    | units |
+|-------------------|--------------|----------|-------|
+| date              | n/a          | datetime | n/a   |
+| temperature       | t            | float    | °F    |
+| dew point         | dwpt         | float    | °F    |
+| relative humidity | rh           | float    | %     |
+| wind speed        | ws           | float    | mph   |
+| pressure          | pr           | float    | Hg    |
+| precipitation     | prcp         | float    | in    |
 
   
 [1]: https://www.nyiso.com/power-grid-data  
@@ -82,3 +97,4 @@ Free source for a weather forecast API.
 [12]: https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt
 [13]: https://www1.ncdc.noaa.gov/pub/data/cdo/documentation/GHCND_documentation.pdf
 [14]: https://www.weatherbit.io/api/weather-forecast-16-day
+[15]: https://www.wunderground.com/history/monthly/KLGA/date/2005-5

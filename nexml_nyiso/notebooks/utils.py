@@ -4,6 +4,7 @@ import datetime
 
 START_DATE = datetime.datetime(2005, 2, 1)
 END_DATE = datetime.datetime(2020, 3, 30)
+WU_WEATHER_PATH = '../../data/klga_weather_historicals.csv'
 WEATHER_DATA_PATH = '../../data/noaa_central_park_weather.csv'
 PAL_DATA_PATH = '../../data/nyiso_pal_master.csv'
 ISOLF_DATA_PATH = '../../data/nyiso_isolf_master.csv'
@@ -22,6 +23,18 @@ COLUMNS_TO_NORMALIZE = [
 
 def date_filter(df):
     return df.loc[(df.index >= START_DATE) & (df.index <= END_DATE)]
+
+
+def wu_weather():
+    df = pd.read_csv(WU_WEATHER_PATH)
+    df['date'] = pd.to_datetime(df['date'])
+    df['day_of_year'] = df.date.dt.dayofyear
+    df['weekday'] = df.date.dt.weekday
+    df['week'] = df.date.dt.week
+    df['month'] = df.date.dt.month
+    df['year'] = df.date.dt.year
+    df.set_index('date', inplace=True)
+    return date_filter(df)
 
 
 def noaa_weather():
@@ -92,7 +105,7 @@ def load_data(target='pal_mean', test_split=0.1):
     return train, test
 
 
-def preprocess(df, mean, std):
+def preprocess(df, mean, std, inplace=True):
     """
     Modifies dataframe in place. Mean and std should be series.
 
@@ -102,6 +115,8 @@ def preprocess(df, mean, std):
     mean: Series -> Series containing mean of columns.
     std: Series -> Series containing std of columns.
     """
+    if not inplace:
+        df = df.copy(deep=True)
 
     one_hot(df, 'day_of_year', DAYS_OF_YEAR)
     one_hot(df, 'weekday', WEEKDAYS)
@@ -111,6 +126,8 @@ def preprocess(df, mean, std):
     for col in COLUMNS_TO_NORMALIZE:
         df[col] -= mean[col]
         df[col] /= std[col]
+
+    return None if inplace else df
 
 
 def one_hot(df, column, categories):
