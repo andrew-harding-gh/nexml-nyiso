@@ -124,8 +124,9 @@ def preprocess(df, mean, std, inplace=True):
     one_hot(df, 'month', MONTHS)
 
     for col in COLUMNS_TO_NORMALIZE:
-        df[col] -= mean[col]
-        df[col] /= std[col]
+        if col in list(df.columns):
+            df[col] -= mean[col]
+            df[col] /= std[col]
 
     return None if inplace else df
 

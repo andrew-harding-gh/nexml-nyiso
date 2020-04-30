@@ -6,8 +6,9 @@ from bokeh.models import DatetimeTickFormatter
 
 def de_process(df, mean, std):
     for col in utils.COLUMNS_TO_NORMALIZE:
-        df[col] *= std[col]
-        df[col] += mean[col]
+        if col in list(df.columns):
+            df[col] *= std[col]
+            df[col] += mean[col]
 
 
 def eval(model, mean, std):
