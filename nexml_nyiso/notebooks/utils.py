@@ -9,10 +9,16 @@ WEATHER_DATA_PATH = '../../data/noaa_central_park_weather.csv'
 PAL_DATA_PATH = '../../data/nyiso_pal_master.csv'
 ISOLF_DATA_PATH = '../../data/nyiso_isolf_master.csv'
 RANDOM_STATE = 123
-DAYS_OF_YEAR = list(range(1, 366))
+DAYS_OF_YEAR = list(range(1, 367))
 WEEKDAYS = list(range(7))
-WEEKS = list(range(1, 53))
+WEEKS = list(range(1, 54))
 MONTHS = list(range(1, 13))
+COLUMNS_TO_NORMALIZE = [
+    'target',
+    'PRCP',
+    'TMAX',
+    'TMIN',
+]
 
 
 def date_filter(df):
@@ -99,20 +105,29 @@ def load_data(target='pal_mean', test_split=0.1):
     return train, test
 
 
-def preprocess(df, columns_to_normalize, mean, std, inplace=True):
+def preprocess(df, mean, std, inplace=True):
+    """
+    Modifies dataframe in place. Mean and std should be series.
 
+    Parameters
+    ----------
+    df: DataFrame -> DataFrame to be processed.
+    mean: Series -> Series containing mean of columns.
+    std: Series -> Series containing std of columns.
+    """
     if not inplace:
         df = df.copy(deep=True)
-        
+
     one_hot(df, 'day_of_year', DAYS_OF_YEAR)
     one_hot(df, 'weekday', WEEKDAYS)
     one_hot(df, 'week', WEEKS)
     one_hot(df, 'month', MONTHS)
 
-    for col in columns_to_normalize:
-        df[col] -= mean[col]
-        df[col] /= std[col]
-        
+    for col in COLUMNS_TO_NORMALIZE:
+        if col in list(df.columns):
+            df[col] -= mean[col]
+            df[col] /= std[col]
+
     return None if inplace else df
 
 

@@ -51,7 +51,7 @@ Historic weather data can be downloaded from [here][10]. Choose the GHCN-Daily d
 
 NOAA weather history: 
 
-| DATE     | STATION                                   | Latitude          | LONGITUDE         | ELEVATION                                         | PRCP                   | TMAX                     | TMIN                    |TAVG                      |
+| DATE     | STATION                                   | LATITUDE          | LONGITUDE         | ELEVATION                                         | PRCP                   | TMAX                     | TMIN                    |TAVG                      |
 |----------|-------------------------------------------|-------------------|-------------------|---------------------------------------------------|------------------------|--------------------------|-------------------------|--------------------------|
 | $Y-$m-$d | Station ID code (USW00094728 for NYC)     | Decimated degrees | Decimated degrees | Elevation above mean sea level (tenths of meters) | Precipitation (inches) | Highest hourly temp (°F) | Lowest hourly temp (°F) | Average hourly temp (°F) | 
   
