@@ -75,16 +75,20 @@ def pal():
     return date_filter(df)
 
 
-def isolf():
+def isolf(forecast_type='isolf_mean'):
+    """
+    Returns: DataFrame with load forecast. Possible prediction parameters:
+    -isolf_min (default)
+    -isolf_max
+    -isolf_mean
+    """
     df = pd.read_csv(ISOLF_DATA_PATH)
     df['Time Stamp'] = pd.to_datetime(df['Time Stamp'])
     df = df[[
         'Time Stamp',
-        'isolf_min',
-        'isolf_max',
-        'isolf_mean',
+        forecast_type,
     ]]
-    df = df.set_index('Time Stamp').sort_index()
+    df = df.set_index('Time Stamp').sort_index().rename(columns={forecast_type: 'nyiso_prediction'})
     return date_filter(df)
 
 
