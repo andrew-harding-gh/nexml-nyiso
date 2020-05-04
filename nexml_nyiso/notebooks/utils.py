@@ -78,9 +78,9 @@ def pal():
 def isolf(forecast_type='isolf_mean'):
     """
     Returns: DataFrame with load forecast. Possible prediction parameters:
-    -isolf_min (default)
+    -isolf_min
     -isolf_max
-    -isolf_mean
+    -isolf_mean (default)
     """
     df = pd.read_csv(ISOLF_DATA_PATH)
     df['Time Stamp'] = pd.to_datetime(df['Time Stamp'])
