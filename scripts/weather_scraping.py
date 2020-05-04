@@ -83,7 +83,7 @@ class WeatherScraper:
 
     def dump_to_file(self, year, month, df):
         dir_ = local.path(__file__).dirname
-        new = local.path(dir_ / 'downloads')
+        new = local.path(dir_ / 'downloads' / 'daily')
         if not new.exists():
             new.mkdir()
         fn = local.path(new / f'{self.station.lower()}_weather_{str(year)}_{str(month)}.csv')
@@ -101,7 +101,7 @@ class CombineWeatherHistorical:
         pattern = re.compile(r".*weather.*\.csv")
 
         dir_ = local.path(__file__).dirname
-        dl_dir = dir_ / 'downloads'
+        dl_dir = dir_ / 'downloads' / 'daily'
 
         df = pd.DataFrame()
 
