@@ -24,8 +24,8 @@ def eval(df):
     pred_plot.line(x='date', y='nyiso_prediction', source=df, alpha=.5, legend_label='NYISO Prediction', color='red')
     pred_plot.xaxis.formatter = DatetimeTickFormatter()
 
-    df['prediction_error'] = df['target'] - df['prediction']
-    df['nyiso_prediction_error'] = df['target'] - df['nyiso_prediction']
+    df['prediction_error'] = df['prediction'] - df['target']
+    df['nyiso_prediction_error'] = df['nyiso_prediction'] - df['target']
     total_prediction_error = df['prediction_error'].abs().sum().round()
     total_nyiso_error = df['nyiso_prediction_error'].abs().sum().round()
     closest_count = len(df[df['prediction_error'].abs() < df['nyiso_prediction_error'].abs()])
