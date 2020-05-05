@@ -138,6 +138,7 @@ class WuApiScraper:
         raw = self.aggregate_files()
         clean = self.clean_df(raw)
         self.output_df(clean)
+        self.aggregate_files()
         print('we done')
 
 
