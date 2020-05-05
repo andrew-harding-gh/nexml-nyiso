@@ -72,7 +72,6 @@ def wrangle_hourly_pal_data(df):
     df = df.loc[df.PTID == 61761]
     df.reset_index(inplace=True)
     df[ts] = pd.to_datetime(df[ts])
-
     # remove rows with 0 value load
     good_idx = set(range(df.shape[0])) - set(df.loc[df['Load'] == 0].index)
     df = df.take(list(good_idx))
