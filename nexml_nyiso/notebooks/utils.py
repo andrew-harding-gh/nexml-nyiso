@@ -18,6 +18,22 @@ COLUMNS_TO_NORMALIZE = [
     'PRCP',
     'TMAX',
     'TMIN',
+    't_max',
+    't_avg',
+    't_min',
+    'dwpt_max',
+    'dwpt_avg',
+    'dwpt_min',
+    'rh_max',
+    'rh_avg',
+    'rh_min',
+    'ws_max',
+    'ws_avg',
+    'ws_min',
+    'pr_max',
+    'pr_avg',
+    'pr_min',
+    'prcp_total',
 ]
 
 
@@ -108,6 +124,7 @@ def preprocess(df, mean, std, inplace=True):
 
     Parameters
     ----------
+    inplace: Boolean -> Modifies DataFrame in place if true, performs deep copy and returns DataFrame if false.
     df: DataFrame -> DataFrame to be processed.
     mean: Series -> Series containing mean of columns.
     std: Series -> Series containing std of columns.
@@ -143,8 +160,7 @@ def expand_dt_col(df, date_col):
     df['weekday'] = df[date_col].dt.weekday
     df['week'] = df[date_col].dt.week
     df['month'] = df[date_col].dt.month
-    df['year'] = df[date_col].dt.year
-    
+
 
 # convert an array of values into a dataset matrix
 def create_dataset(dataset, look_back=1):
@@ -154,10 +170,12 @@ def create_dataset(dataset, look_back=1):
         dataY.append(dataset.iloc[i + look_back, 0])
     return np.array(dataX), np.array(dataY)
 
+
 def time_series_split(df, look_back=60, target_idx=0):
     x = df[:-look_back, :]
     y = df[look_back:, target_idx]
     return x, y
+
 
 def reshape_(df, steps=1):
     return np.reshape(
