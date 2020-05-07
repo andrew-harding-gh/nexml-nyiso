@@ -27,24 +27,37 @@ develop Zone load forecast models.
 
 
 #### Processed datasets:
-Load forecast historicals (ISOLF)
+Load forecast daily historicals (ISOLF)
 
 | Time Stamp | Name               | PTID              | isolf_min                                                               | isolf_max         | isolf_mean         | 
 |------------|--------------------|-------------------|-------------------------------------------------------------------------|-------------|--------------|
 | $Y-$m-$d   | Name of ISO region | ID of that region | Minimum electrical load value forecast for this day in Megawatts (MWH) | max.. (MWH) | mean.. (MWH) |
 
-Actual Load historicals (PAL)
+Load forecast (ISOLF) hourly historicals
+
+ | date_pred_for  | date_pred_made       | forecast         | 
+|------------|-------------|--------------|
+| Datetime the forecast was made for; $Y-$m-$d %h:%m:%s  |   Date the forecast was made on; $Y-$m-$d  |  Electrical load value forecast for this hour in Megawatts (MWH) |
+
+
+Actual Load daily historicals (PAL)
 
 | Time Stamp | Name               | PTID              | pal_min                                                                       | pal_max         | pal_mean         | 
 |------------|--------------------|-------------------|---------------------------------------------------------------------------------|-------------|--------------|
 | $Y-$m-$d   | Name of ISO region | ID of that region | Minimum electrical load value actually recorded for this day in Megawatts (MWH) | max.. (MWH) | mean.. (MWH) |
 
+Actual Load (PAL) Hourly historicals
+
+| Time Stamp |  pal_min                                                                        | pal_max     | pal_mean     | 
+|------------|---------------------------------------------------------------------------------|-------------|--------------|
+| $Y-$m-$d %h:%m:%s   | Minimum electrical load value actually recorded for the hour in Megawatts (MWH) | max.. (MWH) | mean.. (MWH) |
+
+
+
 
 Weather -- Historical actual and forecasted weather utilized by ISO
 
-| header | h2  | 
-|--------|------|
-| text   | text |
+
 
 
 ## NOAA  
