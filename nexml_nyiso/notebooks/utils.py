@@ -134,8 +134,13 @@ def isolf_hourly():
     ! No index is set
     """
     df = pd.read_csv(ISOLF_HOURLY_PATH)
-    df.rename(colummns={'forecast': 'nyiso_prediction'}, inplace=True)
+    df.rename(columns={'forecast': 'nyiso_prediction'}, inplace=True)
+        
+    df['date_pred_made'] = pd.to_datetime(df['date_pred_made'])
+    df['date_pred_for'] = pd.to_datetime(df['date_pred_for'])
+    
     df.sort_values(by=['date_pred_made', 'date_pred_for'], inplace=True)
+    df.reset_index(inplace=True)
     return df
 
 
