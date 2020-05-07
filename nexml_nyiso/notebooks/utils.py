@@ -5,9 +5,12 @@ import datetime
 START_DATE = datetime.datetime(2005, 2, 1)
 END_DATE = datetime.datetime(2020, 3, 30)
 WU_WEATHER_PATH = '../../data/klga_weather_historicals.csv'
+WU_HOURLY_PATH = '../../data/KLGA_hourly_weather_historicals.csv'
 WEATHER_DATA_PATH = '../../data/noaa_central_park_weather.csv'
 PAL_DATA_PATH = '../../data/nyiso_pal_master.csv'
+PAL_HOURLY_PATH = '../../data/nyiso_pal_hourly_master.csv'
 ISOLF_DATA_PATH = '../../data/nyiso_isolf_master.csv'
+ISOLF_HOURLY_PATH = '../../data/nyiso_isolf_hourly_master.csv'
 RANDOM_STATE = 123
 DAYS_OF_YEAR = list(range(1, 367))
 WEEKDAYS = list(range(7))
@@ -47,6 +50,18 @@ def wu_weather():
     expand_dt_col(df, 'date')
     df.set_index('date', inplace=True)
     return date_filter(df)
+
+
+def wu_weather_hourly():
+    df = pd.read_csv(WU_HOURLY_PATH)
+    df['datetime'] = pd.to_datetime(df['datetime'])
+    expand_dt_col(df, 'datetime')
+    df.set_index('datetime', inplace=True)
+    # do quick one hot
+    df = pd.get_dummies(df, columns=['clds'], prefix=['cloud_cover'])
+    return date_filter(df)
+
+
 
 
 def noaa_weather():
