@@ -33,3 +33,8 @@ feeds their site.
 
 This script produces many .csv files that are then aggregated into a large (depending on dates)
 .csv for consumption in other programs.
+
+## Weather Underground Historicals (Hourly series)
+We have produced a two-phased, two-file script for ingesting this data.
+- Fetch (hits WU internal api for hourly data and outputs to files)
+- Process (aggregates files and cleans/interpolates missing data before output to new file)

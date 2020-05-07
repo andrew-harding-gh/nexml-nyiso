@@ -5,9 +5,12 @@ import datetime
 START_DATE = datetime.datetime(2005, 2, 1)
 END_DATE = datetime.datetime(2020, 3, 30)
 WU_WEATHER_PATH = '../../data/klga_weather_historicals.csv'
+WU_HOURLY_PATH = '../../data/klga_hourly_weather_historicals.csv'
 WEATHER_DATA_PATH = '../../data/noaa_central_park_weather.csv'
 PAL_DATA_PATH = '../../data/nyiso_pal_master.csv'
+PAL_HOURLY_PATH = '../../data/nyiso_pal_hourly_master.csv'
 ISOLF_DATA_PATH = '../../data/nyiso_isolf_master.csv'
+ISOLF_HOURLY_PATH = '../../data/nyiso_isolf_hourly_master.csv'
 RANDOM_STATE = 123
 DAYS_OF_YEAR = list(range(1, 367))
 WEEKDAYS = list(range(7))
@@ -49,6 +52,18 @@ def wu_weather():
     return date_filter(df)
 
 
+def wu_weather_hourly():
+    df = pd.read_csv(WU_HOURLY_PATH)
+    df['datetime'] = pd.to_datetime(df['datetime'])
+    expand_dt_col(df, 'datetime')
+    # also expand hour of day
+    df['hour'] = df['datetime'].dt.hour
+    df.set_index('datetime', inplace=True)
+    # do quick one hot
+    df = pd.get_dummies(df, columns=['clds'], prefix=['cloud_cover'])
+    return date_filter(df)
+
+
 def noaa_weather():
     df = pd.read_csv(WEATHER_DATA_PATH, dtype='object')
     df['DATE'] = pd.to_datetime(df['DATE'])
@@ -83,6 +98,19 @@ def pal():
     return date_filter(df)
 
 
+def pal_hourly():
+    df = pd.read_csv(PAL_HOURLY_PATH)
+    df['Time Stamp'] = pd.to_datetime(df['Time Stamp'])
+    df = df[[
+        'Time Stamp',
+        'pal_min',
+        'pal_max',
+        'pal_mean',
+    ]]
+    df = df.set_index('Time Stamp').sort_index()
+    return date_filter(df)
+
+
 def isolf(forecast_type='isolf_mean'):
     """
     Returns: DataFrame with load forecast. Possible prediction parameters:
@@ -100,20 +128,36 @@ def isolf(forecast_type='isolf_mean'):
     return date_filter(df)
 
 
-def load_data(target='pal_mean', random=True, test_split=0.1):
+def isolf_hourly():
+    """
+    Returns: DataFrame with load forecast in hourly format.
+    ! No index is set
+    """
+    df = pd.read_csv(ISOLF_HOURLY_PATH)
+    df.rename(columns={'forecast': 'nyiso_prediction'}, inplace=True)
+        
+    df['date_pred_made'] = pd.to_datetime(df['date_pred_made'])
+    df['date_pred_for'] = pd.to_datetime(df['date_pred_for'])
+    
+    df.sort_values(by=['date_pred_made', 'date_pred_for'], inplace=True)
+    df.reset_index(inplace=True)
+    return df
+
+
+def load_data(target='pal_mean', random=True, test_split=0.1, hourly=False):
     """
     Returns: train, test dataframe with specified target column
     """
     unused_targets = list(filter(lambda x: x != target, ['pal_min', 'pal_max', 'pal_mean']))
-    weather = wu_weather()
-    actual_load = pal()
-    df = actual_load.join(weather, how='inner')
+    weather = wu_weather_hourly() if hourly else wu_weather()
+    actual_load = pal_hourly() if hourly else pal()
+    df = actual_load.join(weather, how='inner')  # regardless of daily/hourly, still join on index (date vs datetime)
     if df.isnull().values.any():
         print('Null values detected in dataset!')
     df.drop(columns=unused_targets, inplace=True)
     df.rename(columns={target: 'target'}, inplace=True)
     if random:
-        df = df.sample(random_state=RANDOM_STATE, frac=1)      
+        df = df.sample(random_state=RANDOM_STATE, frac=1)
     test, train = np.split(df, [int(test_split * len(df))])
     return train, test
 
@@ -180,5 +224,5 @@ def time_series_split(df, look_back=60, target_idx=0):
 def reshape_(df, steps=1):
     return np.reshape(
         df,
-        (df.shape[0], steps, df.shape[1])    
+        (df.shape[0], steps, df.shape[1])
     )
