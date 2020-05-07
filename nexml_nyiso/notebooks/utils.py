@@ -56,12 +56,12 @@ def wu_weather_hourly():
     df = pd.read_csv(WU_HOURLY_PATH)
     df['datetime'] = pd.to_datetime(df['datetime'])
     expand_dt_col(df, 'datetime')
+    # also expand hour of day
+    df['hour'] = df['datetime'].dt.hour
     df.set_index('datetime', inplace=True)
     # do quick one hot
     df = pd.get_dummies(df, columns=['clds'], prefix=['cloud_cover'])
     return date_filter(df)
-
-
 
 
 def noaa_weather():
@@ -98,6 +98,10 @@ def pal():
     return date_filter(df)
 
 
+def pal_hourly():
+    return pal()
+
+
 def isolf(forecast_type='isolf_mean'):
     """
     Returns: DataFrame with load forecast. Possible prediction parameters:
@@ -113,6 +117,17 @@ def isolf(forecast_type='isolf_mean'):
     ]]
     df = df.set_index('Time Stamp').sort_index().rename(columns={forecast_type: 'nyiso_prediction'})
     return date_filter(df)
+
+
+def isolf_hourly():
+    """
+    Returns: DataFrame with load forecast in hourly format.
+    ! No index is set
+    """
+    df = pd.read_csv(ISOLF_HOURLY_PATH)
+    df.rename(colummns={'forecast': 'nyiso_prediction'}, inplace=True)
+    df.sort_values(by=['date_pred_made', 'date_pred_for'], inplace=True)
+    return df
 
 
 def load_data(target='pal_mean', random=True, test_split=0.1):

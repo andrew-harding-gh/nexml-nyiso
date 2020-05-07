@@ -3,10 +3,11 @@ this script assumes the raw archive data is available for aggregation, and then 
 local csv files with that aggregation
 """
 
-from datetime import datetime
 import glob
-import pandas as pd
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
+import pandas as pd
 from plumbum import local
 from zipfile import ZipFile
 
@@ -75,6 +76,7 @@ def wrangle_hourly_pal_data(df):
     # remove rows with 0 value load
     good_idx = set(range(df.shape[0])) - set(df.loc[df['Load'] == 0].index)
     df = df.take(list(good_idx))
+    # df['Load'].fillna(method='ffill')
 
     # expand datetime for grouping ease
     df['hour'] = df[ts].dt.hour
@@ -90,10 +92,11 @@ def wrangle_hourly_pal_data(df):
 
 
 def create_master_elec_csv_from_raw_data(archive_name):
-    master_file = local.path(__file__).dirname.up() / 'data' / f'nyiso_{archive_name}_master.csv'
+    time_snippet = "_hourly" if HOURLY else ""
+    master_file = local.path(__file__).dirname.up() / 'data' / f'nyiso_{archive_name}{time_snippet}_master.csv'
 
     if master_file.exists():
-        new = master_file.dirname / f'nyiso_{archive_name}_master_NEW.csv'
+        new = master_file.dirname / f'nyiso_{archive_name}{time_snippet}_master_NEW.csv'
         if new.exists():
             new.delete()
         new.touch()
@@ -123,7 +126,7 @@ def create_master_elec_csv_from_raw_data(archive_name):
 if __name__ == '__main__':
     HOURLY = True
     print(f'Beginning {"HOURLY" if HOURLY else "DAILY"} file aggregation...')
-    create_master_elec_csv_from_raw_data('pal')
+    # create_master_elec_csv_from_raw_data('pal')
     print('Actual load (PAL) agg completed.')
     create_master_elec_csv_from_raw_data('isolf')
     print('ISO Load Forecasts (ISOLF) agg completed.')
