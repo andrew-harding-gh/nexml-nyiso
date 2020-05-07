@@ -6,12 +6,9 @@ This script processes and aggregates
 import re
 from datetime import datetime
 
-import numpy as np
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 from plumbum import local
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OneHotEncoder
 from zipfile import ZipFile
 
 from nexml_nyiso.notebooks.utils import START_DATE, END_DATE
@@ -95,18 +92,13 @@ def handle_missing_values(df):
     -------
 
     """
-    # precip
+    # no precrp is recorded without a value
     df.prcp.fillna(0, inplace=True)
 
-    # wind
-    df.wdir.fillna(method='ffill', inplace=True)  # forward fill direction when missing and when Null due to do wind
+    # forward fill direction when missing and when Null due to do wind
+    df.wdir.fillna(method='ffill', inplace=True)
     df.wspd.fillna(0, inplace=True)
 
-    # # dew point
-    # # try to calc first, if not missing data, just interpolate
-    #
-    # df[df.dwpt.isnull()].dwpt = \
-    #     df[df.dwpt.isnull()].apply(lambda row: calc_dwpt(row.temp, row.rh) if (np.all(pd.notnull([row.rh, row.temp]))) else row, axis=1)
 
     df.interpolate(method='nearest', inplace=True)
     df.clds.fillna('CLR', inplace=True)  # categorical fill
@@ -114,20 +106,6 @@ def handle_missing_values(df):
     # df.COL.isnull().astype(int).groupby(df.COL.notnull().astype(int).cumsum()).sum().max()
 
     return df
-
-
-def calc_dwpt(temp, rh):
-    """
-    temp: assume temp is in F --> float;
-    rh: relative humidity --> float;
-    """
-    # first convert to celcius
-    temp = (temp - 32) * 5 / 9
-    return round(
-        243.04 * (np.log(rh / 100) + ((17.625 * temp) / (243.04 + temp))) / (
-                17.625 - np.log(rh / 100) - ((17.625 * temp) / (243.04 + temp))),
-        1
-    )
 
 
 def output_df(df):
