@@ -5,7 +5,7 @@ import datetime
 START_DATE = datetime.datetime(2005, 2, 1)
 END_DATE = datetime.datetime(2020, 3, 30)
 WU_WEATHER_PATH = '../../data/klga_weather_historicals.csv'
-WU_HOURLY_PATH = '../../data/KLGA_hourly_weather_historicals.csv'
+WU_HOURLY_PATH = '../../data/klga_hourly_weather_historicals.csv'
 WEATHER_DATA_PATH = '../../data/noaa_central_park_weather.csv'
 PAL_DATA_PATH = '../../data/nyiso_pal_master.csv'
 PAL_HOURLY_PATH = '../../data/nyiso_pal_hourly_master.csv'
@@ -99,7 +99,16 @@ def pal():
 
 
 def pal_hourly():
-    return pal()
+    df = pd.read_csv(PAL_HOURLY_PATH)
+    df['Time Stamp'] = pd.to_datetime(df['Time Stamp'])
+    df = df[[
+        'Time Stamp',
+        'pal_min',
+        'pal_max',
+        'pal_mean',
+    ]]
+    df = df.set_index('Time Stamp').sort_index()
+    return date_filter(df)
 
 
 def isolf(forecast_type='isolf_mean'):
@@ -130,20 +139,20 @@ def isolf_hourly():
     return df
 
 
-def load_data(target='pal_mean', random=True, test_split=0.1):
+def load_data(target='pal_mean', random=True, test_split=0.1, hourly=False):
     """
     Returns: train, test dataframe with specified target column
     """
     unused_targets = list(filter(lambda x: x != target, ['pal_min', 'pal_max', 'pal_mean']))
-    weather = wu_weather()
-    actual_load = pal()
-    df = actual_load.join(weather, how='inner')
+    weather = wu_weather_hourly() if hourly else wu_weather()
+    actual_load = pal_hourly() if hourly else pal()
+    df = actual_load.join(weather, how='inner')  # regardless of daily/hourly, still join on index (date vs datetime)
     if df.isnull().values.any():
         print('Null values detected in dataset!')
     df.drop(columns=unused_targets, inplace=True)
     df.rename(columns={target: 'target'}, inplace=True)
     if random:
-        df = df.sample(random_state=RANDOM_STATE, frac=1)      
+        df = df.sample(random_state=RANDOM_STATE, frac=1)
     test, train = np.split(df, [int(test_split * len(df))])
     return train, test
 
@@ -210,5 +219,9 @@ def time_series_split(df, look_back=60, target_idx=0):
 def reshape_(df, steps=1):
     return np.reshape(
         df,
-        (df.shape[0], steps, df.shape[1])    
+        (df.shape[0], steps, df.shape[1])
     )
+
+
+if __name__ == '__main__':
+    load_data(hourly=True)

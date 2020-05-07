@@ -99,7 +99,6 @@ def handle_missing_values(df):
     df.wdir.fillna(method='ffill', inplace=True)
     df.wspd.fillna(0, inplace=True)
 
-
     df.interpolate(method='nearest', inplace=True)
     df.clds.fillna('CLR', inplace=True)  # categorical fill
     # i've only checked the most consecutive missing for dwpt and it was 13, see below for how to
