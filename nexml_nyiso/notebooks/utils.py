@@ -226,7 +226,3 @@ def reshape_(df, steps=1):
         df,
         (df.shape[0], steps, df.shape[1])
     )
-
-
-if __name__ == '__main__':
-    load_data(hourly=True)
