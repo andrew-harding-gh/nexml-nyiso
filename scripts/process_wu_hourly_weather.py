@@ -16,7 +16,7 @@ from nexml_nyiso.notebooks.utils import START_DATE, END_DATE
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
-def aggregate_files(from_archive):
+def aggregate_files(from_archive, station):
     pattern = re.compile(r".*hourly_weather.*\.csv")
     dir_ = local.path(__file__).dirname
 
@@ -30,7 +30,7 @@ def aggregate_files(from_archive):
             df = pd.concat([df, in_df])
 
     else:
-        zip_path = local.path(__file__).dirname.up() / 'raw_data' / 'wu_archive' / 'hourly.zip'
+        zip_path = local.path(__file__).dirname.up() / 'raw_data' / 'wu_archive' / f"{station}_hourly.zip"
         zf = ZipFile(str(zip_path))
         for csv_file in zf.filelist:
             with zf.open(csv_file.filename) as csv:
@@ -54,11 +54,11 @@ def clean_df(df):
         'wspd': 'wspd',
         'wdir': 'wdir',
         'wc': 'wc',
-        'pressure': 'pressure',
+        'pressure': 'pres',
         'precip_hrly': 'prcp',
         'clds': 'clds',
         'uv_index': 'uv_idx',
-        'feels_like': 't_app',
+        'feels_like': 'app_temp',
         'vis': 'vis',
         'heat_index': 'heat_idx'
     }
@@ -111,13 +111,13 @@ def output_df(df, station):
 
 
 def main(from_archive, station):
-    df = aggregate_files(from_archive)
+    df = aggregate_files(from_archive, station)
     df = clean_df(df)
     output_df(df, station)
 
 
 if __name__ == '__main__':
     FROM_ARCHIVE = True  # if processing the repo-archived files in `raw_data`
-    STATION = 'JFK'
     print(f'Beginning weather underground file aggregation...')
-    main(FROM_ARCHIVE, STATION)
+    main(FROM_ARCHIVE, 'KJFK')
+    main(FROM_ARCHIVE, 'KLGA')

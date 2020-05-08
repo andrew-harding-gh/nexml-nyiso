@@ -19,25 +19,24 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 
 class WuApiScraper:
-    def __init__(self, key, station, start, end):
+    def __init__(self, key, start, end):
         self.key = key
-        self.station = station
         self.start_date = start
         self.end_date = end
 
-    def dump_to_file(self, dt_obj, records):
+    def dump_to_file(self, dt_obj, station, records):
         dir_ = local.path(__file__).dirname
         new = local.path(dir_ / 'downloads' / 'hourly')
         if not new.exists():
             new.mkdir()
-        fn = local.path(new / f'{self.station}_hourly_weather_{dt_obj.year}_{dt_obj.month}.csv')
+        fn = local.path(new / f'{station}_hourly_weather_{dt_obj.year}_{dt_obj.month}.csv')
 
         df = pd.DataFrame.from_records(records)
 
         df.to_csv(str(fn), index=False)
         print(f'data written for {str(dt_obj.date())}.')
 
-    def main(self):
+    def main(self, station):
 
         cur_date = self.start_date
         fmt_ = "%Y%m%d"
@@ -49,7 +48,7 @@ class WuApiScraper:
             local_start = cur_date.strftime(fmt_)
             local_end = month_end.strftime(fmt_)
 
-            url = f'https://api.weather.com/v1/location/{self.station}:9:US/observations/historical.json?' \
+            url = f'https://api.weather.com/v1/location/{station}:9:US/observations/historical.json?' \
                   f'apiKey={self.key}&units=e&startDate={local_start}&endDate={local_end}'
             r = requests.get(url)
 
@@ -59,7 +58,7 @@ class WuApiScraper:
             d = json.loads(r.text)
             data = d['observations']
 
-            self.dump_to_file(cur_date, data)
+            self.dump_to_file(cur_date, station, data)
 
             time.sleep(3)
             cur_date += relativedelta(months=1)
@@ -75,8 +74,8 @@ if __name__ == '__main__':
     """
     w = WuApiScraper(
         key="6532d6454b8aa370768e63d6ba5a832e",
-        station='KJFK',
         start=START_DATE,
         end=END_DATE
     )
-    w.main()
+    w.main('KJFK')
+    w.main('KLGA')
