@@ -55,9 +55,8 @@ def wu_weather():
 def wu_weather_hourly():
     df = pd.read_csv(WU_HOURLY_PATH)
     df['datetime'] = pd.to_datetime(df['datetime'])
-    expand_dt_col(df, 'datetime')
-    # also expand hour of day
-    df['hour'] = df['datetime'].dt.hour
+    expand_dt_col(df, 'datetime', hourly=True)
+
     df.set_index('datetime', inplace=True)
     # do quick one hot
     df = pd.get_dummies(df, columns=['clds'], prefix=['cloud_cover'])
@@ -198,12 +197,14 @@ def one_hot(df, column, categories):
     df.drop(columns=[column], inplace=True)
 
 
-def expand_dt_col(df, date_col):
+def expand_dt_col(df, date_col, hourly=False):
     """ mutates df in place """
     df['day_of_year'] = df[date_col].dt.dayofyear
     df['weekday'] = df[date_col].dt.weekday
     df['week'] = df[date_col].dt.week
     df['month'] = df[date_col].dt.month
+    if hourly:
+        df['hour'] = df[date_col].dt.hour
 
 
 # convert an array of values into a dataset matrix
