@@ -44,23 +44,21 @@ def date_filter(df):
     return df.loc[(df.index >= START_DATE) & (df.index <= END_DATE)]
 
 
-def wu_weather():
-    df = pd.read_csv(WU_WEATHER_PATH)
-    df['date'] = pd.to_datetime(df['date'])
-    expand_dt_col(df, 'date')
-    df.set_index('date', inplace=True)
-    return date_filter(df)
+def wu_weather(hourly=False):
+    if hourly:
+        df = pd.read_csv(WU_HOURLY_PATH)
+        df['datetime'] = pd.to_datetime(df['datetime'])
+        expand_dt_col(df, 'datetime', hourly=True)
+        # do quick one hot
+        df = pd.get_dummies(df, columns=['clds'], prefix=['cloud_cover'])
+        df.set_index('datetime', inplace=True)
+    else:
+        df = pd.read_csv(WU_WEATHER_PATH)
+        df['date'] = pd.to_datetime(df['date'])
+        expand_dt_col(df, 'date')
+        df.set_index('date', inplace=True)
 
-
-def wu_weather_hourly():
-    df = pd.read_csv(WU_HOURLY_PATH)
-    df['datetime'] = pd.to_datetime(df['datetime'])
-    expand_dt_col(df, 'datetime', hourly=True)
-
-    df.set_index('datetime', inplace=True)
-    # do quick one hot
-    df = pd.get_dummies(df, columns=['clds'], prefix=['cloud_cover'])
-    return date_filter(df)
+    return date_filter(df).sort_index()
 
 
 def noaa_weather():
@@ -84,21 +82,9 @@ def noaa_weather():
     return date_filter(df)
 
 
-def pal():
-    df = pd.read_csv(PAL_DATA_PATH)
-    df['Time Stamp'] = pd.to_datetime(df['Time Stamp'])
-    df = df[[
-        'Time Stamp',
-        'pal_min',
-        'pal_max',
-        'pal_mean',
-    ]]
-    df = df.set_index('Time Stamp').sort_index()
-    return date_filter(df)
-
-
-def pal_hourly():
-    df = pd.read_csv(PAL_HOURLY_PATH)
+def pal(hourly=False):
+    data_path = PAL_HOURLY_PATH if hourly else PAL_DATA_PATH
+    df = pd.read_csv(data_path)
     df['Time Stamp'] = pd.to_datetime(df['Time Stamp'])
     df = df[[
         'Time Stamp',
@@ -148,8 +134,8 @@ def load_data(target='pal_mean', random=True, test_split=0.1, hourly=False):
     Returns: train, test dataframe with specified target column
     """
     unused_targets = list(filter(lambda x: x != target, ['pal_min', 'pal_max', 'pal_mean']))
-    weather = wu_weather_hourly() if hourly else wu_weather()
-    actual_load = pal_hourly() if hourly else pal()
+    weather = wu_weather(hourly=hourly)
+    actual_load = pal(hourly=hourly)
     df = actual_load.join(weather, how='inner')  # regardless of daily/hourly, still join on index (date vs datetime)
     if df.isnull().values.any():
         print('Null values detected in dataset!')
