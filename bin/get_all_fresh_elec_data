@@ -1,6 +1,0 @@
-#! /bin/sh
-
-set -e
-
-python ../scripts/fetch_source_iso_elec_data.py
-. create_master_elec_data_files
