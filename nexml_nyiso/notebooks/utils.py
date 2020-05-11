@@ -37,6 +37,18 @@ COLUMNS_TO_NORMALIZE = [
     'pr_avg',
     'pr_min',
     'prcp_total',
+    'temp',  # hourly data below
+    'dwpt',
+    'heat_idx',
+    'rh',
+    'pressure',
+    'vis',
+    'wc',
+    'wdir',
+    'wspd',
+    'prcp',
+    't_app',
+    'uv_idx',
 ]
 
 
@@ -62,7 +74,7 @@ def wu_weather(hourly=False, interpolate_limit=2):
     if hourly:
         # do quick one hot
         df = pd.get_dummies(df, columns=['clds'], prefix=['cloud_cover'])
-        if interpolate_limit > 0:
+        if interpolate_limit:
             dates = pd.DataFrame(pd.date_range(START_DATE, END_DATE, freq='H')).rename(columns={0: 'date'}).set_index('date')
             df = dates.join(df, how='left')
             df.interpolate(method='nearest', limit=interpolate_limit, inplace=True)
@@ -122,19 +134,29 @@ def isolf(forecast_type='isolf_mean'):
     return date_filter(df)
 
 
-def isolf_hourly():
+def isolf_hourly(lookahead=0):
     """
     Returns: DataFrame with load forecast in hourly format.
-    ! No index is set
+
+    Parameters
+    ----------
+    lookahead: Int -> Number of days ahead for forecast data. For example, a value of 1 will return all load forecasts
+    pertaining to the next calendar day. A value of 0 will return all possible forecasts.
     """
     df = pd.read_csv(ISOLF_HOURLY_PATH)
     df.rename(columns={'forecast': 'nyiso_prediction'}, inplace=True)
         
     df['date_pred_made'] = pd.to_datetime(df['date_pred_made'])
     df['date_pred_for'] = pd.to_datetime(df['date_pred_for'])
-    
-    df.sort_values(by=['date_pred_made', 'date_pred_for'], inplace=True)
-    df.reset_index(inplace=True)
+
+    if lookahead:
+        df['date_pred_for_rounded'] = df['date_pred_for'].dt.floor("D")
+        df = df[(df['date_pred_made'] + pd.Timedelta(days=lookahead) == df['date_pred_for_rounded'])]
+        df = df.set_index('date_pred_for').sort_index()
+        df = df[['nyiso_prediction']]
+    else:
+        df.sort_values(by=['date_pred_made', 'date_pred_for'], inplace=True)
+        df.reset_index(inplace=True)
     return df
 
 
@@ -230,3 +252,5 @@ def reshape_(df, steps=1):
         df,
         (df.shape[0], steps, df.shape[1])
     )
+
+t = isolf_hourly(lookahead=2)
