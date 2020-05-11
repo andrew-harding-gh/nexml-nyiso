@@ -11,6 +11,15 @@ convert the time-series data to daily, finally storing it in `/data`.
 NYISO is a goverment org that maintains the reliable operation of the state's energy grid.
 The reason this org is interesting to us is that they do a lot of system load forecasting to ensure optimal distribution. We are attempting to replicate this modeling.
 
+Short description of the NYISO model:  
+```
+The Load Forecast function uses a combination of advanced neural network and regression type 
+forecast models to generate its forecasts. The function uses historical load and weather data 
+information (including temperature, dew point, cloud cover and wind speed) for each Zone to 
+develop Zone load forecast models.
+``` 
+[[source][16]]
+
 #### Source Datasets:
 [Load Forecasts (ISOLF)][2]  
 [Actual Load Results (PAL)][3]  
@@ -18,24 +27,37 @@ The reason this org is interesting to us is that they do a lot of system load fo
 
 
 #### Processed datasets:
-Load forecast historicals (ISOLF)
+Load forecast daily historicals (ISOLF)
 
 | Time Stamp | Name               | PTID              | isolf_min                                                               | isolf_max         | isolf_mean         | 
 |------------|--------------------|-------------------|-------------------------------------------------------------------------|-------------|--------------|
 | $Y-$m-$d   | Name of ISO region | ID of that region | Minimum electrical load value forecast for this day in Megawatts (MWH) | max.. (MWH) | mean.. (MWH) |
 
-Actual Load historicals (PAL)
+Load forecast (ISOLF) hourly historicals
+
+ | date_pred_for  | date_pred_made       | forecast         | 
+|------------|-------------|--------------|
+| Datetime the forecast was made for; $Y-$m-$d %h:%m:%s  |   Date the forecast was made on; $Y-$m-$d  |  Electrical load value forecast for this hour in Megawatts (MWH) |
+
+
+Actual Load daily historicals (PAL)
 
 | Time Stamp | Name               | PTID              | pal_min                                                                       | pal_max         | pal_mean         | 
 |------------|--------------------|-------------------|---------------------------------------------------------------------------------|-------------|--------------|
 | $Y-$m-$d   | Name of ISO region | ID of that region | Minimum electrical load value actually recorded for this day in Megawatts (MWH) | max.. (MWH) | mean.. (MWH) |
 
+Actual Load (PAL) Hourly historicals
+
+| Time Stamp |  pal_min                                                                        | pal_max     | pal_mean     | 
+|------------|---------------------------------------------------------------------------------|-------------|--------------|
+| $Y-$m-$d %h:%m:%s   | Minimum electrical load value actually recorded for the hour in Megawatts (MWH) | max.. (MWH) | mean.. (MWH) |
+
+
+
 
 Weather -- Historical actual and forecasted weather utilized by ISO
 
-| header | h2  | 
-|--------|------|
-| text   | text |
+
 
 
 ## NOAA  
@@ -98,3 +120,4 @@ Dataset has several features, some with with min/max/avg columns:
 [13]: https://www1.ncdc.noaa.gov/pub/data/cdo/documentation/GHCND_documentation.pdf
 [14]: https://www.weatherbit.io/api/weather-forecast-16-day
 [15]: https://www.wunderground.com/history/monthly/KLGA/date/2005-5
+[16]: https://www.nyiso.com/documents/20142/2923301/dayahd-schd-mnl.pdf/0024bc71-4dd9-fa80-a816-f9f3e26ea53a#%5B%7B%22num%22%3A176%2C%22gen%22%3A0%7D%2C%7B%22name%22%3A%22XYZ%22%7D%2C51%2C704%2C0%5D
