@@ -44,14 +44,29 @@ def date_filter(df):
     return df.loc[(df.index >= START_DATE) & (df.index <= END_DATE)]
 
 
-def wu_weather(hourly=False):
+def wu_weather(hourly=False, interpolate_limit=2):
+    """
+    Returns hourly/daily WU weather.
+
+    Parameters
+    ----------
+    hourly: Boolean -> If true, returns hourly data.
+    interpolate_limit: Int -> Interpolate weather data. 0 disables interpolation. Default set at 2.
+    """
     if hourly:
         df = pd.read_csv(WU_HOURLY_PATH)
         df['datetime'] = pd.to_datetime(df['datetime'])
         expand_dt_col(df, 'datetime', hourly=True)
+        df.set_index('datetime', inplace=True)
         # do quick one hot
         df = pd.get_dummies(df, columns=['clds'], prefix=['cloud_cover'])
-        df.set_index('datetime', inplace=True)
+        if interpolate_limit > 0:
+            dates = pd.DataFrame(pd.date_range(START_DATE, END_DATE, freq='H')).rename(columns={0: 'date'}).set_index('date')
+            df = dates.join(df, how='left')
+            df.interpolate(method='nearest', limit=interpolate_limit, inplace=True)
+            # drop the non-interpolated rows
+            df.dropna(inplace=True)
+
     else:
         df = pd.read_csv(WU_WEATHER_PATH)
         df['date'] = pd.to_datetime(df['date'])
@@ -129,12 +144,20 @@ def isolf_hourly():
     return df
 
 
-def load_data(target='pal_mean', random=True, test_split=0.1, hourly=False):
+def load_data(target='pal_mean', random=True, test_split=0.1, hourly=False, interpolate_limit=2):
     """
     Returns: train, test dataframe with specified target column
+
+    Parameters
+    ----------
+    target: String -> Target value to use. Possible values: 'pal_min', 'pal_max', 'pal_mean'.
+    random: Boolean -> Randomize all data.
+    test_split: Float -> Percentage of data to allocate for test DataFrame. Default is 0.1 (10%).
+    hourly: Boolean -> If true, returns hourly data.
+    interpolate_limit: Int -> Interpolate weather data. 0 disables interpolation. Default set at 2.
     """
     unused_targets = list(filter(lambda x: x != target, ['pal_min', 'pal_max', 'pal_mean']))
-    weather = wu_weather(hourly=hourly)
+    weather = wu_weather(hourly=hourly, interpolate_limit=interpolate_limit)
     actual_load = pal(hourly=hourly)
     df = actual_load.join(weather, how='inner')  # regardless of daily/hourly, still join on index (date vs datetime)
     if df.isnull().values.any():
