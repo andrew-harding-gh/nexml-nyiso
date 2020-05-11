@@ -53,26 +53,20 @@ def wu_weather(hourly=False, interpolate_limit=2):
     hourly: Boolean -> If true, returns hourly data.
     interpolate_limit: Int -> Interpolate weather data. 0 disables interpolation. Default set at 2.
     """
+    date_col, path = ('datetime', WU_HOURLY_PATH) if hourly else ('date', WU_WEATHER_PATH)
+
+    df = pd.read_csv(path)
+    df[date_col] = pd.to_datetime(df[date_col])
+    expand_dt_col(df, date_col, hourly=True)
+    df.set_index(date_col, inplace=True)
     if hourly:
-        df = pd.read_csv(WU_HOURLY_PATH)
-        df['datetime'] = pd.to_datetime(df['datetime'])
-        expand_dt_col(df, 'datetime', hourly=True)
-        df.set_index('datetime', inplace=True)
         # do quick one hot
         df = pd.get_dummies(df, columns=['clds'], prefix=['cloud_cover'])
         if interpolate_limit > 0:
             dates = pd.DataFrame(pd.date_range(START_DATE, END_DATE, freq='H')).rename(columns={0: 'date'}).set_index('date')
             df = dates.join(df, how='left')
             df.interpolate(method='nearest', limit=interpolate_limit, inplace=True)
-            # drop the non-interpolated rows
-            df.dropna(inplace=True)
-
-    else:
-        df = pd.read_csv(WU_WEATHER_PATH)
-        df['date'] = pd.to_datetime(df['date'])
-        expand_dt_col(df, 'date')
-        df.set_index('date', inplace=True)
-
+            df.dropna(inplace=True)  # drop the non-interpolated rows
     return date_filter(df).sort_index()
 
 
