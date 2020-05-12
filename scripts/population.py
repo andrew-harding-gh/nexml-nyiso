@@ -1,9 +1,10 @@
 # The purpose of this script is to extrapolate daily
 # NYC population data from yearly NYC population data
 import pandas as pd
+from nexml_nyiso.notebooks.utils import START_DATE, END_DATE
 
 def daily_population_csv(yearly_df):
-    date_df = pd.date_range(start='2/1/2005', end='3/30/2020').to_frame(index=False, name='date')
+    date_df = pd.date_range(start=START_DATE, end=END_DATE).to_frame(index=False, name='date')
     date_df['year'] = date_df.date.dt.year
     date_df['day_of_year'] = date_df.date.dt.dayofyear
     daily_population_df = date_df.join(yearly_df.set_index('year'), on='year')
