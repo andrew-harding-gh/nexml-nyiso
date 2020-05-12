@@ -38,3 +38,8 @@ This script produces many .csv files that are then aggregated into a large (depe
 We have produced a two-phased, two-file script for ingesting this data.
 - Fetch (hits WU internal api for hourly data and outputs to files)
 - Process (aggregates files and cleans/interpolates missing data before output to new file)
+
+## NYC Population (Daily)
+[NYC Yearly Population Data](https://www.macrotrends.net/cities/23083/new-york-city/population)  
+We built a script which takes, as input, a csv containing yearly population data and outputs a csv containing daily population data.  
+The output is saved in the data folder of our project.
