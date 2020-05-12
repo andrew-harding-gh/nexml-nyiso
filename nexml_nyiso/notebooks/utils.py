@@ -252,5 +252,3 @@ def reshape_(df, steps=1):
         df,
         (df.shape[0], steps, df.shape[1])
     )
-
-t = isolf_hourly(lookahead=2)
