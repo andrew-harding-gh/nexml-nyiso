@@ -37,6 +37,18 @@ COLUMNS_TO_NORMALIZE = [
     'pr_avg',
     'pr_min',
     'prcp_total',
+    'temp',  # hourly data below
+    'dwpt',
+    'heat_idx',
+    'rh',
+    'pressure',
+    'vis',
+    'wc',
+    'wdir',
+    'wspd',
+    'prcp',
+    't_app',
+    'uv_idx',
 ]
 
 
@@ -44,24 +56,30 @@ def date_filter(df):
     return df.loc[(df.index >= START_DATE) & (df.index <= END_DATE)]
 
 
-def wu_weather():
-    df = pd.read_csv(WU_WEATHER_PATH)
-    df['date'] = pd.to_datetime(df['date'])
-    expand_dt_col(df, 'date')
-    df.set_index('date', inplace=True)
-    return date_filter(df)
+def wu_weather(hourly=False, interpolate_limit=2):
+    """
+    Returns hourly/daily WU weather.
 
+    Parameters
+    ----------
+    hourly: Boolean -> If true, returns hourly data.
+    interpolate_limit: Int -> Interpolate weather data. 0 disables interpolation. Default set at 2.
+    """
+    date_col, path = ('datetime', WU_HOURLY_PATH) if hourly else ('date', WU_WEATHER_PATH)
 
-def wu_weather_hourly():
-    df = pd.read_csv(WU_HOURLY_PATH)
-    df['datetime'] = pd.to_datetime(df['datetime'])
-    expand_dt_col(df, 'datetime')
-    # also expand hour of day
-    df['hour'] = df['datetime'].dt.hour
-    df.set_index('datetime', inplace=True)
-    # do quick one hot
-    df = pd.get_dummies(df, columns=['clds'], prefix=['cloud_cover'])
-    return date_filter(df)
+    df = pd.read_csv(path)
+    df[date_col] = pd.to_datetime(df[date_col])
+    expand_dt_col(df, date_col, hourly=True)
+    df.set_index(date_col, inplace=True)
+    if hourly:
+        # do quick one hot
+        df = pd.get_dummies(df, columns=['clds'], prefix=['cloud_cover'])
+        if interpolate_limit:
+            dates = pd.DataFrame(pd.date_range(START_DATE, END_DATE, freq='H')).rename(columns={0: 'date'}).set_index('date')
+            df = dates.join(df, how='left')
+            df.interpolate(method='nearest', limit=interpolate_limit, inplace=True)
+            df.dropna(inplace=True)  # drop the non-interpolated rows
+    return date_filter(df).sort_index()
 
 
 def noaa_weather():
@@ -85,21 +103,9 @@ def noaa_weather():
     return date_filter(df)
 
 
-def pal():
-    df = pd.read_csv(PAL_DATA_PATH)
-    df['Time Stamp'] = pd.to_datetime(df['Time Stamp'])
-    df = df[[
-        'Time Stamp',
-        'pal_min',
-        'pal_max',
-        'pal_mean',
-    ]]
-    df = df.set_index('Time Stamp').sort_index()
-    return date_filter(df)
-
-
-def pal_hourly():
-    df = pd.read_csv(PAL_HOURLY_PATH)
+def pal(hourly=False):
+    data_path = PAL_HOURLY_PATH if hourly else PAL_DATA_PATH
+    df = pd.read_csv(data_path)
     df['Time Stamp'] = pd.to_datetime(df['Time Stamp'])
     df = df[[
         'Time Stamp',
@@ -128,29 +134,47 @@ def isolf(forecast_type='isolf_mean'):
     return date_filter(df)
 
 
-def isolf_hourly():
+def isolf_hourly(lookahead=0):
     """
     Returns: DataFrame with load forecast in hourly format.
-    ! No index is set
+
+    Parameters
+    ----------
+    lookahead: Int -> Number of days ahead for forecast data. For example, a value of 1 will return all load forecasts
+    pertaining to the next calendar day. A value of 0 will return all possible forecasts.
     """
     df = pd.read_csv(ISOLF_HOURLY_PATH)
     df.rename(columns={'forecast': 'nyiso_prediction'}, inplace=True)
         
     df['date_pred_made'] = pd.to_datetime(df['date_pred_made'])
     df['date_pred_for'] = pd.to_datetime(df['date_pred_for'])
-    
-    df.sort_values(by=['date_pred_made', 'date_pred_for'], inplace=True)
-    df.reset_index(inplace=True)
+
+    if lookahead:
+        df['date_pred_for_rounded'] = df['date_pred_for'].dt.floor("D")
+        df = df[(df['date_pred_made'] + pd.Timedelta(days=lookahead) == df['date_pred_for_rounded'])]
+        df = df.set_index('date_pred_for').sort_index()
+        df = df[['nyiso_prediction']]
+    else:
+        df.sort_values(by=['date_pred_made', 'date_pred_for'], inplace=True)
+        df.reset_index(inplace=True)
     return df
 
 
-def load_data(target='pal_mean', random=True, test_split=0.1, hourly=False):
+def load_data(target='pal_mean', random=True, test_split=0.1, hourly=False, interpolate_limit=2):
     """
     Returns: train, test dataframe with specified target column
+
+    Parameters
+    ----------
+    target: String -> Target value to use. Possible values: 'pal_min', 'pal_max', 'pal_mean'.
+    random: Boolean -> Randomize all data.
+    test_split: Float -> Percentage of data to allocate for test DataFrame. Default is 0.1 (10%).
+    hourly: Boolean -> If true, returns hourly data.
+    interpolate_limit: Int -> Interpolate weather data. 0 disables interpolation. Default set at 2.
     """
     unused_targets = list(filter(lambda x: x != target, ['pal_min', 'pal_max', 'pal_mean']))
-    weather = wu_weather_hourly() if hourly else wu_weather()
-    actual_load = pal_hourly() if hourly else pal()
+    weather = wu_weather(hourly=hourly, interpolate_limit=interpolate_limit)
+    actual_load = pal(hourly=hourly)
     df = actual_load.join(weather, how='inner')  # regardless of daily/hourly, still join on index (date vs datetime)
     if df.isnull().values.any():
         print('Null values detected in dataset!')
@@ -198,12 +222,14 @@ def one_hot(df, column, categories):
     df.drop(columns=[column], inplace=True)
 
 
-def expand_dt_col(df, date_col):
+def expand_dt_col(df, date_col, hourly=False):
     """ mutates df in place """
     df['day_of_year'] = df[date_col].dt.dayofyear
     df['weekday'] = df[date_col].dt.weekday
     df['week'] = df[date_col].dt.week
     df['month'] = df[date_col].dt.month
+    if hourly:
+        df['hour'] = df[date_col].dt.hour
 
 
 # convert an array of values into a dataset matrix
