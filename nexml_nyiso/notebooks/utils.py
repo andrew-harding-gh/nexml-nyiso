@@ -186,7 +186,7 @@ def load_data(target='pal_mean', random=True, test_split=0.1, hourly=False, inte
     return train, test
 
 
-def preprocess(df, mean, std, inplace=True):
+def preprocess(df, mean=0, std=0, inplace=True, normalize=True):
     """
     Modifies dataframe in place. Mean and std should be series.
 
@@ -205,10 +205,11 @@ def preprocess(df, mean, std, inplace=True):
     one_hot(df, 'week', WEEKS)
     one_hot(df, 'month', MONTHS)
 
-    for col in COLUMNS_TO_NORMALIZE:
-        if col in list(df.columns):
-            df[col] -= mean[col]
-            df[col] /= std[col]
+    if normalize:
+        for col in COLUMNS_TO_NORMALIZE:
+            if col in list(df.columns):
+                df[col] -= mean[col]
+                df[col] /= std[col]
 
     return None if inplace else df
 
