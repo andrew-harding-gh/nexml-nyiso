@@ -20,7 +20,10 @@ class WbClient:
 
     daily_forecast = namedtuple(
         'daily_forecast',
-        ['station_id', 'date_fetched', 'date', 'tmin', 'tmax', 'app_tmin', 'app_tmax', 'wspeed', 'wdir', 'prcp', 'rh']
+        [
+            'station_id', 'date_fetched', 'date', 'tmin', 'tmax', 'app_tmin',
+            'app_tmax', 'wspeed', 'wdir', 'prcp', 'rh'
+        ]
     )
 
     def __init__(self, api_key, units="I"):
@@ -95,7 +98,7 @@ class WbClient:
         station_id: str -> station ID for weatherbit
         hours: int (1 to 120) -> count of hours ahead to fetch forecast; max on free tier is 48
 
-        Returns
+        Returns json wrapped list of `hourly_forecast` namedtuple
         -------
         """
         endpoint = 'forecast/hourly'

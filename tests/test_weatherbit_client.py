@@ -1,11 +1,13 @@
 import json
 import pytest
+from datetime import datetime
 from requests.exceptions import HTTPError
 from unittest.mock import MagicMock
 
-
 import requests_mock
+from freezegun import freeze_time
 
+from tests import conftest
 from nexml_nyiso.clients.weatherbit_client import WbClient
 
 """
@@ -31,11 +33,11 @@ def test_wb_get(**kwargs):
 
     url = "http://test.com"
     query_params = {
-        'id': 'jfk',
+        'station': 'jfk',
         'year': 2020
     }
 
-    test_url = url + f"?key={TEST_KEY}&id=jfk&year=2020"
+    test_url = url + f"?key={TEST_KEY}&station=jfk&year=2020"
 
     # set a mock landing
     kwargs['mock'].get(test_url, text=json.dumps(BASIC_RESP))
@@ -44,6 +46,38 @@ def test_wb_get(**kwargs):
 
     # set bad mock landing by overwriting the good landing
     kwargs['mock'].get(test_url, text=json.dumps(BASIC_RESP), status_code=404)
-    # ensure we fail to land fast
+    # ensure we fail to land, fast
     with pytest.raises(HTTPError):
         client.get(url, query_params)
+
+
+@freeze_time("2020-05-18 12:00:00")
+@requests_mock.Mocker(kw='mock')
+def test_get_hourly_forecast_by_station(**kwargs):
+    assert datetime.now() == datetime(2020, 5, 18, 12, 0, 0)
+
+    test_params = {'station': 'KLGA', 'hours': 3}
+    # ordering of query params in url depends on order of params passed to function
+    expected_url = WbClient.base_url + 'forecast/hourly' +\
+                   f"?station={test_params['station']}&hours={test_params['hours']}&key={TEST_KEY}"
+
+    json_return = {
+        'some_key': 1,
+        'data': conftest.RAW_HOURLY_FC,
+        'more_keys': 'here'
+    }
+
+    # set a mock response for where we expect to land
+    kwargs['mock'].get(expected_url, text=json.dumps(json_return))
+
+    client = WbClient(TEST_KEY)
+    result = client.get_hourly_forecast_by_station(test_params['station'], test_params['hours'])
+
+    expected_result = {
+        'station': test_params['station'],
+        'data': conftest.CLEAN_HOURLY_FC
+    }
+
+    assert result == expected_result
+
+
