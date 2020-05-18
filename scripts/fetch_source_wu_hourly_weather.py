@@ -75,7 +75,7 @@ if __name__ == '__main__':
     """
     w = WuApiScraper(
         key="6532d6454b8aa370768e63d6ba5a832e",
-        station='KLGA',
+        station='KJFK',
         start=START_DATE,
         end=END_DATE
     )

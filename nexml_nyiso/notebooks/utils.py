@@ -1,6 +1,8 @@
+import datetime
+
 import pandas as pd
 import numpy as np
-import datetime
+import keras
 
 START_DATE = datetime.datetime(2005, 2, 1)
 END_DATE = datetime.datetime(2020, 3, 30)
@@ -145,7 +147,7 @@ def isolf_hourly(lookahead=0):
     """
     df = pd.read_csv(ISOLF_HOURLY_PATH)
     df.rename(columns={'forecast': 'nyiso_prediction'}, inplace=True)
-        
+
     df['date_pred_made'] = pd.to_datetime(df['date_pred_made'])
     df['date_pred_for'] = pd.to_datetime(df['date_pred_for'])
 
@@ -200,10 +202,7 @@ def preprocess(df, mean, std, inplace=True):
     if not inplace:
         df = df.copy(deep=True)
 
-    one_hot(df, 'day_of_year', DAYS_OF_YEAR)
-    one_hot(df, 'weekday', WEEKDAYS)
-    one_hot(df, 'week', WEEKS)
-    one_hot(df, 'month', MONTHS)
+    one_hot_calendar_vals(df)
 
     for col in COLUMNS_TO_NORMALIZE:
         if col in list(df.columns):
@@ -211,6 +210,14 @@ def preprocess(df, mean, std, inplace=True):
             df[col] /= std[col]
 
     return None if inplace else df
+
+
+def one_hot_calendar_vals(df):
+    """ Modifies in place """
+    one_hot(df, 'day_of_year', DAYS_OF_YEAR)
+    one_hot(df, 'weekday', WEEKDAYS)
+    one_hot(df, 'week', WEEKS)
+    one_hot(df, 'month', MONTHS)
 
 
 def one_hot(df, column, categories):
@@ -232,23 +239,12 @@ def expand_dt_col(df, date_col, hourly=False):
         df['hour'] = df[date_col].dt.hour
 
 
-# convert an array of values into a dataset matrix
-def create_dataset(dataset, look_back=1):
-    dataX, dataY = [], []
-    for i in range(len(dataset)-look_back-1):
-        dataX.append(dataset.iloc[i:(i+look_back), 0])
-        dataY.append(dataset.iloc[i + look_back, 0])
-    return np.array(dataX), np.array(dataY)
-
-
-def time_series_split(df, look_back=60, target_idx=0):
-    x = df[:-look_back, :]
-    y = df[look_back:, target_idx]
-    return x, y
-
-
-def reshape_(df, steps=1):
-    return np.reshape(
-        df,
-        (df.shape[0], steps, df.shape[1])
-    )
+def build_model(input_shape, n_hidden=1, n_neurons=30, learning_rate=3e-3):
+    model = keras.models.Sequential()
+    model.add(keras.layers.InputLayer(input_shape=input_shape))
+    for layer in range(n_hidden):
+        model.add(keras.layers.Dense(n_neurons, activation='relu'))
+    model.add(keras.layers.Dense(1))
+    optimizer = keras.optimizers.RMSprop(lr=learning_rate)
+    model.compile(loss='mse', optimizer=optimizer)
+    return model

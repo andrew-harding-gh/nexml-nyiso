@@ -101,24 +101,23 @@ def handle_missing_values(df):
 
     df.interpolate(method='nearest', inplace=True)
     df.clds.fillna('CLR', inplace=True)  # categorical fill
-    # i've only checked the most consecutive missing for dwpt and it was 13, see below for how to
-    # df.COL.isnull().astype(int).groupby(df.COL.notnull().astype(int).cumsum()).sum().max()
 
     return df
 
 
-def output_df(df):
-    fn = local.path(__file__).dirname.up() / 'data' / 'klga_hourly_weather_historicals'
+def output_df(df, station):
+    fn = local.path(__file__).dirname.up() / 'data' / f'{str(station)}_hourly_weather_historicals'
     df.to_csv(str(fn.with_suffix('.csv')), index=False)
 
 
-def main(from_archive):
+def main(from_archive, station):
     df = aggregate_files(from_archive)
     df = clean_df(df)
-    output_df(df)
+    output_df(df, station)
 
 
 if __name__ == '__main__':
     FROM_ARCHIVE = True  # if processing the repo-archived files in `raw_data`
+    STATION = 'JFK'
     print(f'Beginning weather underground file aggregation...')
-    main(FROM_ARCHIVE)
+    main(FROM_ARCHIVE, STATION)
