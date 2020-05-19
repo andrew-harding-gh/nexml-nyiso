@@ -213,7 +213,7 @@ def preprocess(df, mean=0, std=0, inplace=True, normalize=True):
 
     one_hot_calendar_vals(df)
 
-    # lazy way to check jfk columns
+    # check jfk columns as well
     cols = COLUMNS_TO_NORMALIZE + [x + '_jfk' for x in COLUMNS_TO_NORMALIZE]
 
     if normalize:
