@@ -204,6 +204,7 @@ def preprocess(df, mean=0, std=0, inplace=True, normalize=True):
     df: DataFrame -> DataFrame to be processed.
     mean: Series -> Series containing mean of columns.
     std: Series -> Series containing std of columns.
+    normalize: Boolean -> Whether or not to normalize the data.
     """
     if not inplace:
         df = df.copy(deep=True)
