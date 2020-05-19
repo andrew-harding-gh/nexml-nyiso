@@ -1,12 +1,13 @@
 import math
 from collections import namedtuple
 
+from plumbum import local
+
 """ 
 forecast obj:
 station id, date of api request, date of forecast, minimum temp, maxmimum temp,  min apparent (real feel) temp,
 max apparent (real feel) temp, wind speed, wind direction in degrees, accumulated precipitation, relative humidity
 """
-
 
 weather_station = namedtuple('weather_station', ['station_id', 'name', 'lat', 'lon'])
 
@@ -17,7 +18,9 @@ def round_decorate(decimals=2):
     def real_decorator(func):
         def func_wrapper(*args, **kwargs):
             return round(func(*args, **kwargs), decimals)
+
         return func_wrapper
+
     return real_decorator
 
 
@@ -64,7 +67,7 @@ def calc_wind_chill(temp, wspd):
     """
     if wspd <= 3:
         return temp
-    return 35.74 + (0.6125 * temp) - (35.75 * wspd**0.16) + (0.4275 * temp * wspd**0.16)
+    return 35.74 + (0.6125 * temp) - (35.75 * wspd ** 0.16) + (0.4275 * temp * wspd ** 0.16)
 
 
 def convert_cld_cover(percent):
@@ -73,13 +76,22 @@ def convert_cld_cover(percent):
     see: https://www.eoas.ubc.ca/courses/atsc113/flying/met_concepts/01-met_concepts/01c-cloud_coverage/images-01c/cloud_cover_table-v2.png
     """
 
-    if percent < 1/8:
+    if percent < 1 / 8:
         return 'CLR'
-    elif percent < 3/8:
+    elif percent < 3 / 8:
         return 'FEW'
-    elif percent < 5/8:
+    elif percent < 5 / 8:
         return 'SCT'
-    elif percent < 7/8:
+    elif percent < 7 / 8:
         return 'BKN'
     else:
         return "OVC"
+
+
+def get_url():
+    return "postgresql://{user}:{pwd}@{host}/{dbname}".format(
+        user=local.env.get("DB_USER", "elec"),
+        pwd=local.env.get("DB_PASSWORD", "elec"),
+        host=local.env.get("DB_HOST", "localhost"),
+        dbname=local.env.get("DB_NAME", "elec_db"),
+    )
