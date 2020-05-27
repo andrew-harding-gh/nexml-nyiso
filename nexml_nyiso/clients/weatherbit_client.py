@@ -13,7 +13,7 @@ class WbClient:
     hourly_forecast = namedtuple(
         'hourly_forecast',
         [
-            'station_id', 'dt_fetched', 'datetime', 'temp', 'app_temp', 'dwpt', 'rh',
+            'station_abbr', 'dt_fetched', 'dt_for', 'temp', 'app_temp', 'dwpt', 'rh',
             'wspd', 'wdir', 'wc', 'clds', 'vis', 'pres', 'uv_idx', 'prcp', 'heat_idx'
         ]
     )
@@ -21,7 +21,7 @@ class WbClient:
     daily_forecast = namedtuple(
         'daily_forecast',
         [
-            'station_id', 'date_fetched', 'date', 'tmin', 'tmax', 'app_tmin',
+            'station_abbr', 'date_fetched', 'date', 'tmin', 'tmax', 'app_tmin',
             'app_tmax', 'wspeed', 'wdir', 'prcp', 'rh'
         ]
     )
@@ -39,13 +39,13 @@ class WbClient:
         url = WbClient.base_url + 'subscriptions/usage'
         return self.get(url)
 
-    def get_historical_by_station_and_day(self, station_id, day):
+    def get_historical_by_station_and_day(self, station_abbr, day):
         """
         Fetch weather historical data for one day at a time. This is useful for free tier API key
 
         Parameters
         ----------
-        station_id: str -> string of station ID
+        station_abbr: str -> string of station ID
         day: str -> %Y-%m-%d format. This is the day (00:00 to 23:59) that we fetch for
         units: str -> measurement system to use for forecast data. Must be in class attr `valid_units`
 
@@ -56,21 +56,21 @@ class WbClient:
         start_date = datetime.strptime(day, "%Y-%m-%d").date()
         end_date = start_date + timedelta(days=1)
         json_ = self.get_historical_weather_by_station(
-            station_id=station_id,
+            station_abbr=station_abbr,
             start_date=start_date.strftime("%Y-%m-%d"),
             end_date=end_date.strftime("%Y-%m-%d"),
         )
 
         return json_['data'][0]  # return first and only day as list
 
-    def get_historical_weather_by_station(self, station_id, start_date, end_date):
+    def get_historical_weather_by_station(self, station_abbr, start_date, end_date):
         """
         https://www.weatherbit.io/api/weather-history-daily
         2,500 historical calls per day on free tier (1 day of data per call)
 
         Parameters
         ----------
-        station_id: str -> string of station ID
+        station_abbr: str -> string of station ID
         start_date: str -> %Y-%m-%d format. This is the beginning day we fetch the historical for
         end_date: str -> %Y-%m-%d. Data ends before this day
         units: str -> measurement system to use for forecast data. Must be in class attr `valid_units`
@@ -81,21 +81,21 @@ class WbClient:
         endpoint = "/history/daily/"
         url = WbClient.base_url + endpoint
         params = {
-            'station': station_id,
+            'station': station_abbr,
             'start_date': start_date,
             'end_date': end_date
         }
         data = self.get(url, params)['data']
         return data
 
-    def get_hourly_forecast_by_station(self, station_id, hours=48):
+    def get_hourly_forecast_by_station(self, station_abbr, hours=48):
         """
         https://www.weatherbit.io/api/weather-forecast-120-hour
         API endpoint returning hourly forecasts beginning with the hour following the current one.
 
         Parameters
         ----------
-        station_id: str -> station ID for weatherbit
+        station_abbr: str -> station ID for weatherbit
         hours: int (1 to 120) -> count of hours ahead to fetch forecast; max on free tier is 48
 
         Returns json wrapped list of `hourly_forecast` namedtuple
@@ -104,18 +104,18 @@ class WbClient:
         endpoint = 'forecast/hourly'
         url = WbClient.base_url + endpoint
         params = {
-            'station': station_id,
+            'station': station_abbr,
             'hours': hours
         }
         data = self.get(url, params)['data']
         return {
-            'station': station_id,
+            'station': station_abbr,
             'data': [
                 WbClient.hourly_forecast(
-                    station_id=station_id,
+                    station_abbr=station_abbr,
                     # we only care about getting the dt within the hour it was fetched
                     dt_fetched=datetime.fromisoformat(datetime.today().strftime("%Y-%m-%d %H:00:00")),
-                    datetime=datetime.fromisoformat(hr_record['timestamp_local']),
+                    dt_for=datetime.fromisoformat(hr_record['timestamp_local']),
                     temp=hr_record['temp'],
                     app_temp=hr_record['app_temp'],
                     dwpt=hr_record['dewpt'],
@@ -134,14 +134,14 @@ class WbClient:
             ]
         }
 
-    def get_days_ahead_forecast_by_station(self, station_id, days=16):
+    def get_days_ahead_forecast_by_station(self, station_abbr, days=16):
         """
         https://www.weatherbit.io/api/weather-forecast-16-day
         API endpoint returns a 16 day forecast which includes the day the request was made.
 
         Parameters
         ----------
-        station_id: str -> string for station ID to get forecast for
+        station_abbr: str -> string for station ID to get forecast for
         days: int -> number of days ahead for forecast to return; eg days=10 => today + 9 days ahead
 
         Returns array containing `wb_forecast` namedtuple for each day in `days`
@@ -150,13 +150,13 @@ class WbClient:
         endpoint = "forecast/daily"
         url = WbClient.base_url + endpoint
         params = {
-            'station': station_id,
+            'station': station_abbr,
             'days': days
         }
         data = self.get(url, params)['data']
         return [
             WbClient.daily_forecast(
-                station_id=station_id,
+                station_abbr=station_abbr,
                 date_fetched=datetime.today().date(),
                 date=datetime.strptime(fc_day.get('valid_date'), "%Y-%m-%d"),
                 tmin=fc_day.get("min_temp"),
