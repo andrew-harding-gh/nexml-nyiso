@@ -8,6 +8,7 @@ START_DATE = datetime.datetime(2005, 2, 1)
 END_DATE = datetime.datetime(2020, 3, 30)
 WU_WEATHER_PATH = '../../data/klga_weather_historicals.csv'
 WU_HOURLY_PATH = '../../data/klga_hourly_weather_historicals.csv'
+WU_JFK_HOURLY_PATH = '../../data/JFK_hourly_weather_historicals.csv'
 WEATHER_DATA_PATH = '../../data/noaa_central_park_weather.csv'
 PAL_DATA_PATH = '../../data/nyiso_pal_master.csv'
 PAL_HOURLY_PATH = '../../data/nyiso_pal_hourly_master.csv'
@@ -58,7 +59,7 @@ def date_filter(df):
     return df.loc[(df.index >= START_DATE) & (df.index <= END_DATE)]
 
 
-def wu_weather(hourly=False, interpolate_limit=2):
+def wu_weather(hourly=False, interpolate_limit=2, location='klga'):
     """
     Returns hourly/daily WU weather.
 
@@ -67,7 +68,12 @@ def wu_weather(hourly=False, interpolate_limit=2):
     hourly: Boolean -> If true, returns hourly data.
     interpolate_limit: Int -> Interpolate weather data. 0 disables interpolation. Default set at 2.
     """
-    date_col, path = ('datetime', WU_HOURLY_PATH) if hourly else ('date', WU_WEATHER_PATH)
+    date_col = 'datetime' if hourly else 'date'
+
+    if location == 'klga':
+        path = WU_HOURLY_PATH if hourly else WU_WEATHER_PATH
+    elif location == 'jfk':
+        path = WU_JFK_HOURLY_PATH
 
     df = pd.read_csv(path)
     df[date_col] = pd.to_datetime(df[date_col])
@@ -175,7 +181,9 @@ def load_data(target='pal_mean', random=True, test_split=0.1, hourly=False, inte
     interpolate_limit: Int -> Interpolate weather data. 0 disables interpolation. Default set at 2.
     """
     unused_targets = list(filter(lambda x: x != target, ['pal_min', 'pal_max', 'pal_mean']))
-    weather = wu_weather(hourly=hourly, interpolate_limit=interpolate_limit)
+    klga = wu_weather(hourly=hourly, interpolate_limit=interpolate_limit)
+    jfk = wu_weather(hourly=hourly, interpolate_limit=interpolate_limit, location='jfk')
+    weather = klga.join(jfk, how='inner', rsuffix='_jfk')
     actual_load = pal(hourly=hourly)
     df = actual_load.join(weather, how='inner')  # regardless of daily/hourly, still join on index (date vs datetime)
     if df.isnull().values.any():
@@ -188,7 +196,7 @@ def load_data(target='pal_mean', random=True, test_split=0.1, hourly=False, inte
     return train, test
 
 
-def preprocess(df, mean, std, inplace=True):
+def preprocess(df, mean=0, std=0, inplace=True, normalize=True):
     """
     Modifies dataframe in place. Mean and std should be series.
 
@@ -198,16 +206,21 @@ def preprocess(df, mean, std, inplace=True):
     df: DataFrame -> DataFrame to be processed.
     mean: Series -> Series containing mean of columns.
     std: Series -> Series containing std of columns.
+    normalize: Boolean -> Whether or not to normalize the data.
     """
     if not inplace:
         df = df.copy(deep=True)
 
     one_hot_calendar_vals(df)
 
-    for col in COLUMNS_TO_NORMALIZE:
-        if col in list(df.columns):
-            df[col] -= mean[col]
-            df[col] /= std[col]
+    # check jfk columns as well
+    cols = COLUMNS_TO_NORMALIZE + [x + '_jfk' for x in COLUMNS_TO_NORMALIZE]
+
+    if normalize:
+        for col in cols:
+            if col in list(df.columns):
+                df[col] -= mean[col]
+                df[col] /= std[col]
 
     return None if inplace else df
 
