@@ -13,6 +13,7 @@ decorator==4.4.2
 defusedxml==0.6.0
 entrypoints==0.3
 enum34==1.1.10
+Flask==1.1.2
 h5py==2.10.0
 html5lib==1.0.1
 idna==2.9
@@ -21,6 +22,7 @@ ipykernel==5.2.0
 ipython==7.13.0
 ipython-genutils==0.2.0
 ipywidgets==7.5.1
+itsdangerous==1.1.0
 jedi==0.16.0
 Jinja2==2.11.1
 joblib==0.14.1
@@ -84,5 +86,6 @@ typing-extensions==3.7.4.2
 urllib3==1.25.8
 wcwidth==0.1.9
 webencodings==0.5.1
+Werkzeug==1.0.1
 widgetsnbextension==3.5.1
 zipp==3.1.0
