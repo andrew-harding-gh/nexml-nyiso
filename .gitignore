@@ -3,3 +3,8 @@
 *__pycache__/
 venv/
 /nexml_nyiso/bin/.ipynb_checkpoints/
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
