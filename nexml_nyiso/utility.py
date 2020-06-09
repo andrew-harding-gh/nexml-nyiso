@@ -13,6 +13,10 @@ weather_station = namedtuple('weather_station', ['station_id', 'name', 'lat', 'l
 
 central_park = weather_station("USW00094728", "Central Park", 40.7789, -73.9692)
 
+wb_station = namedtuple('wb_station', ['full_name', 'id', 'lat', 'long'])
+JFK = wb_station('JFK Airport', 'KJFK', 40.65, -73.78)
+LGA = wb_station('LaGuardia Airport', 'KLGA', 40.78, -73.88)
+
 
 def round_decorate(decimals=2):
     def real_decorator(func):
