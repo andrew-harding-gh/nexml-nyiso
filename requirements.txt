@@ -58,8 +58,11 @@ plaidbench==0.7.0
 plaidml==0.7.0
 plaidml-keras==0.7.0
 plumbum==1.6.9
+postgres==3.0.0
 prometheus-client==0.7.1
 prompt-toolkit==3.0.5
+psycopg2-binary==2.8.5
+psycopg2-pool==1.1
 ptyprocess==0.6.0
 pycparser==2.20
 Pygments==2.6.1

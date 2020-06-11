@@ -1,7 +1,12 @@
 import pandas as pd
 import numpy as np
 import datetime
+import os
+import configparser
 
+config = configparser.ConfigParser()
+CONFIG_PATH = '~/.nexml-nyiso/config'
+config.read(os.path.expanduser(CONFIG_PATH))
 START_DATE = datetime.datetime(2005, 2, 1)
 END_DATE = datetime.datetime(2020, 3, 30)
 WU_WEATHER_PATH = '../../data/klga_weather_historicals.csv'
