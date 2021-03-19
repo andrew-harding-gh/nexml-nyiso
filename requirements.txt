@@ -50,7 +50,7 @@ parso==0.6.2
 pexpect==4.8.0
 phantomjs==1.1.7
 pickleshare==0.7.5
-Pillow==7.1.1
+Pillow==8.1.1
 plaidbench==0.7.0
 plaidml==0.7.0
 plaidml-keras==0.7.0
